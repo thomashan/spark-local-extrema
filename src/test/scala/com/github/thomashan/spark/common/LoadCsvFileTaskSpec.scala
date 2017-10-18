@@ -19,7 +19,7 @@ class LoadCsvFileTaskSpec extends SparkSpec {
       )
 
       assert(dataframeOption.isDefined)
-      assert(dataframeOption.get.collect().length == 9)
+      assert(dataframeOption.get.collect().length == 13)
     }
   }
 }

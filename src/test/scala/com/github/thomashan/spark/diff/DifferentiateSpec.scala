@@ -22,7 +22,7 @@ class DifferentiateSpec extends SparkSpec {
         )
       ).get
 
-      assert(differentiated.collect.length == 8)
+      assert(differentiated.collect.length == 12)
       assertDataFrameEquals(expected, differentiated)
     }
   }
