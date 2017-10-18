@@ -24,8 +24,8 @@ class FindDifferentiationCrossoversTaskSpec extends SparkSpec {
         )
       ).get
 
-      assert(crossovers.collect.length == 7)
-      assert(crossovers.where($"extrema".isNotNull).collect.length == 4)
+      assert(crossovers.collect.length == 11)
+      assert(crossovers.where($"extrema".isNotNull).collect.length == 6)
       assertDataFrameEquals(expected, crossovers)
     }
   }
