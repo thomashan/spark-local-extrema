@@ -24,9 +24,6 @@ class DifferentiateSpec extends SparkSpec {
         )
       ).get
 
-      input.printSchema
-      expected.printSchema
-
       assert(differentiated.collect.length == 8)
       assertDataFrameEquals(expected, differentiated)
     }

@@ -1,14 +1,14 @@
 package com.github.thomashan.spark.diff
 
+import com.github.thomashan.spark.SparkTask
 import org.apache.spark.mllib.rdd.RDDFunctions._
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
-class DifferentiateTask(implicit spark: SparkSession) {
-
-  import spark.implicits._
-
+class DifferentiateTask(implicit val spark: SparkSession) extends SparkTask {
   def run(taskParameters: Map[String, Any]): Option[DataFrame] = {
+    import spark.implicits._
+
     val input = taskParameters("input").asInstanceOf[DataFrame]
     val xAxisName = taskParameters("xAxisName").toString
     val yAxisName = taskParameters("yAxisName").toString
