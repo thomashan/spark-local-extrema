@@ -6,7 +6,7 @@ import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 class DifferentiateTask(implicit val spark: SparkSession) extends SparkTask {
-  def run(taskParameters: Map[String, Any]): Option[DataFrame] = {
+  override def run(taskParameters: Map[String, Any]): Option[DataFrame] = {
     import spark.implicits._
 
     val input = taskParameters("input").asInstanceOf[DataFrame]
