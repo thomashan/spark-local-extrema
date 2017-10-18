@@ -1,4 +1,4 @@
-package com.github.thomashan.common
+package com.github.thomashan.spark.common
 
 import org.apache.spark.sql.{DataFrame, SparkSession}
 

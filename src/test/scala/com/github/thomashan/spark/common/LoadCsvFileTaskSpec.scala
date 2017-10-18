@@ -1,11 +1,9 @@
-package com.github.thomashan.common
+package com.github.thomashan.spark.common
 
-import com.holdenkarau.spark.testing.{DatasetSuiteBase, SparkSessionProvider}
-import org.scalatest.{BeforeAndAfter, FunSpec}
+import com.github.thomashan.spark.SparkSpec
 
-class LoadCsvFileTaskSpec extends FunSpec with DatasetSuiteBase with BeforeAndAfter {
+class LoadCsvFileTaskSpec extends SparkSpec {
   var loadCsvFileTask: LoadCsvFileTask = _
-  override lazy implicit val spark = SparkSessionProvider._sparkSession
 
   before {
     loadCsvFileTask = new LoadCsvFileTask()
