@@ -21,10 +21,10 @@ class DifferentiateTask(implicit val spark: SparkSession) extends SparkTask {
       .map { array =>
         val element0 = array.head
         val element1 = array.last
-        val y1 = element1.getDouble(1)
-        val y0 = element0.getDouble(1)
-        val x1 = element1.getDouble(0)
         val x0 = element0.getDouble(0)
+        val x1 = element1.getDouble(0)
+        val y0 = element0.getDouble(1)
+        val y1 = element1.getDouble(1)
 
         val diff = (y1 - y0) / (x1 - x0)
 
