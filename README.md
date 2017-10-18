@@ -25,3 +25,6 @@ You can see there are local extremas in the following points
 (2, 1.6) minima
 (2.6, 3) maxima
 (2.7, 2.5) minima
+
+# Time series quotes
+## FIXME: put quotes in here 
