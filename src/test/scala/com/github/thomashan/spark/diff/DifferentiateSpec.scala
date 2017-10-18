@@ -1,10 +1,8 @@
 package com.github.thomashan.spark.diff
 
 import com.github.thomashan.spark.{DataFrameUtils, SparkSpec}
-import org.apache.spark.sql.DataFrame
 
 class DifferentiateSpec extends SparkSpec {
-
   var differentiateTask: DifferentiateTask = _
 
   before {
@@ -27,9 +25,5 @@ class DifferentiateSpec extends SparkSpec {
       assert(differentiated.collect.length == 8)
       assertDataFrameEquals(expected, differentiated)
     }
-  }
-
-  private def loadCsvFile(path: String): DataFrame = {
-    spark.read.option("header", true).option("inferSchema", true).csv(path)
   }
 }
