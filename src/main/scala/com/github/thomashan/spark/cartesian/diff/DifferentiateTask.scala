@@ -1,4 +1,4 @@
-package com.github.thomashan.spark.diff
+package com.github.thomashan.spark.cartesian.diff
 
 import com.github.thomashan.spark.SparkTask
 import org.apache.spark.mllib.rdd.RDDFunctions._

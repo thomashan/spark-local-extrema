@@ -1,4 +1,4 @@
-package com.github.thomashan.spark.diff
+package com.github.thomashan.spark.cartesian.diff
 
 import com.github.thomashan.spark.{DataFrameUtils, SparkSpec}
 

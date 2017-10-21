@@ -1,15 +1,15 @@
-package com.github.thomashan.spark.diff
+package com.github.thomashan.spark.cartesian.extrema
 
 import com.github.thomashan.spark.{DataFrameUtils, SparkSpec}
 import org.apache.spark.sql.functions._
 
-class FindDifferentiationCrossoversTaskSpec extends SparkSpec {
-  var findDifferentiationCrossoversTask: FindDifferentiationCrossoversTask = _
+class ExtremaSetTaskSpec extends SparkSpec {
+  var extremaSetTask: ExtremaSetTask = _
 
   import spark.implicits._
 
   before {
-    findDifferentiationCrossoversTask = new FindDifferentiationCrossoversTask()
+    extremaSetTask = new ExtremaSetTask()
   }
 
   describe("implementation details") {
@@ -83,14 +83,16 @@ class FindDifferentiationCrossoversTaskSpec extends SparkSpec {
 
   describe("find differentiation crossover") {
     it("run should produce correct extrema types") {
-      val input = loadCsvFile("src/test/resources/data/cartesian_points.csv")
+      val input = loadCsvFile("src/test/resources/data/cartesian_points_diff.csv")
 
       val u = udf((i: Int) => i.toLong)
-      val expected = DataFrameUtils.setNullableStateForAllColumns(loadCsvFile("src/test/resources/data/cartesian_points_crossover_points.csv")
+      val expected = DataFrameUtils.setNullableStateForAllColumns(loadCsvFile("src/test/resources/data/cartesian_points_extrema_set.csv")
         .withColumn("temp_extrema_index", u($"extrema_index"))
         .select($"x", $"y", $"extrema", $"temp_extrema_index".as("extrema_index")), true)
 
-      val crossovers = findDifferentiationCrossoversTask.run(
+      expected.show
+
+      val crossovers = extremaSetTask.run(
         Map(
           "input" -> input,
           "xAxisName" -> "x",
