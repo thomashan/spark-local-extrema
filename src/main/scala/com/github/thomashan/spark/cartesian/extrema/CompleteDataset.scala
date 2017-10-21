@@ -6,19 +6,21 @@ import com.github.thomashan.spark.common.LoadCsvFileTask
 
 // spark-submit --master local[*] --driver-memory 4g \
 // --class com.github.thomashan.spark.cartesian.extrema.CompleteDatasetWithJob \
-// target/scala-2.11/spark-jobs-assembly-0.1-SNAPSHOT.jar inputFile xAxisName yAxisName outputFile
-class CompleteDatasetWithJob extends SparkJob {
+// target/scala-2.11/spark-jobs-assembly-0.1-SNAPSHOT.jar inputFile true xAxisName yAxisName outputFile
+class CompleteDataset extends SparkJob {
   override val applicationName: String = getClass.getName
 
   override protected def run(args: Array[String]): Unit = {
     val inputFile = args(0)
-    val xAxisName = args(1)
-    val yAxisName = args(2)
-    val outputFile = args(3)
+    val header = args(1).toBoolean
+    val xAxisName = args(2)
+    val yAxisName = args(3)
+    val outputFile = args(4)
 
     val input = new LoadCsvFileTask()
       .run(Map(
-        "inputFile" -> inputFile
+        "inputFile" -> inputFile,
+        "header" -> header
       )).get.cache
 
     val diff = new DifferentiateTask()
@@ -42,8 +44,15 @@ class CompleteDatasetWithJob extends SparkJob {
 
     result
       .write
+      .sortBy(xAxisName)
       .mode("overwrite")
       .save(outputFile)
+
+    input.unpersist
+    diff.unpersist
   }
 }
 
+object CompleteDataset extends App {
+  new CompleteDataset().run(args)
+}
