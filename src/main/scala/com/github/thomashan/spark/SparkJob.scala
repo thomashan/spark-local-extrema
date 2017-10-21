@@ -12,4 +12,3 @@ abstract class SparkJob {
 
   protected def run(args: Array[String])
 }
-
