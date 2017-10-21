@@ -42,9 +42,12 @@ class CompleteDataset extends SparkJob {
       .select(xAxisName, yAxisName, "extrema", "extrema_index")
 
     result
+      .coalesce(1)
+      .orderBy(xAxisName)
       .write
+      .option("header", true)
       .mode("overwrite")
-      .save(outputFile)
+      .csv(outputFile)
 
     input.unpersist
     diff.unpersist
