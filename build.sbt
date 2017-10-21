@@ -16,3 +16,7 @@ libraryDependencies ++= Seq(
 
   "com.holdenkarau" %% "spark-testing-base" % "2.2.0_0.7.4" % "test"
 )
+
+parallelExecution in Test := false
+fork in Test := true
+javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-XX:MaxPermSize=2048M", "-XX:+CMSClassUnloadingEnabled")

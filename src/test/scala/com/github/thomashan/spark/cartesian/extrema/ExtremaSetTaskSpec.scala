@@ -90,8 +90,6 @@ class ExtremaSetTaskSpec extends SparkSpec {
         .withColumn("temp_extrema_index", u($"extrema_index"))
         .select($"x", $"y", $"extrema", $"temp_extrema_index".as("extrema_index")), true)
 
-      expected.show
-
       val crossovers = extremaSetTask.run(
         Map(
           "input" -> input,
