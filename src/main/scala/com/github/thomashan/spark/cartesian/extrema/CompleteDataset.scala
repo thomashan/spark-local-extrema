@@ -39,12 +39,10 @@ class CompleteDataset extends SparkJob {
 
     val result = input
       .join(extremaSet, Seq(xAxisName, yAxisName), "left")
-      .orderBy(xAxisName)
       .select(xAxisName, yAxisName, "extrema", "extrema_index")
 
     result
       .write
-      .sortBy(xAxisName)
       .mode("overwrite")
       .save(outputFile)
 
