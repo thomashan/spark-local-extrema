@@ -76,16 +76,12 @@ package object extrema {
 
 
       // FIXME: should refactor as the startOfFlats needs to be cached
-      val result = startOfFlats
+      startOfFlats
         .join(zeroDiffAreas, Seq("start_of_flat_x"), "left")
         .withColumn("temp_extrema", when($"diff" === 0, $"zero_diff_extrema").otherwise($"extrema"))
         .withColumn("temp_extrema_index", when($"diff" === 0, $"zero_diff_extrema_index").otherwise($"extrema_index"))
         .select(col(xAxisName), col(yAxisName), $"diff", $"temp_extrema".as("extrema"), $"temp_extrema_index".as("extrema_index"))
         .where($"extrema".isNotNull)
-
-      result.show
-
-      result
     }
   }
 
