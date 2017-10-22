@@ -1,6 +1,7 @@
 package com.github.thomashan.spark.cartesian.extrema
 
 import com.github.thomashan.spark.{DataFrameUtils, SparkSpec}
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 
 class ExtremaSetTaskSpec extends SparkSpec {
@@ -13,8 +14,124 @@ class ExtremaSetTaskSpec extends SparkSpec {
   }
 
   describe("implementation details") {
-    it("allExtremas should return all extrema points 2") {
+    it("allExtremas should return all extrema points simple scenario 1") {
+      val input = prepareCompleteDataset(
+        (0, 0, null, null, null),
+        (1, 1, 1.0, "maxima", 0l),
+        (2, -1, -2.0, "minima", 1l),
+        (3, 0, 1.0, null, null)
+      )
+      val expected = prepareCompleteDataset(
+        (1, 1, 1.0, "maxima", 0l),
+        (2, -1, -2.0, "minima", 1l)
+      )
 
+      val result = input.allExtremas("x", "y")
+
+      assertDataFrameEquals(expected, result)
+    }
+
+    it("allExtremas should return all extrema points simple scenario 2") {
+      val input = prepareCompleteDataset(
+        (0, 0, null, null, null),
+        (1, -1, -1.0, "minima", 0l),
+        (2, 1, 2.0, "maxima", 1l),
+        (3, 0, -1.0, null, null)
+      )
+      val expected = prepareCompleteDataset(
+        (1, -1, -1.0, "minima", 0l),
+        (2, 1, 2.0, "maxima", 1l)
+      )
+
+      val result = input.allExtremas("x", "y")
+
+      assertDataFrameEquals(expected, result)
+    }
+
+    it("allExtremas should return all extrema points complex scenario 1") {
+      val input = prepareCompleteDataset(
+        (1, 0, null, null, null),
+        (2, 1, 1.0, "maxima", 0l),
+        (3, 1, 0.0, "maxima", 0l),
+        (4, 1, 0.0, "maxima", 0l),
+        (5, 1, 0.0, "maxima", 0l),
+        (6, 0, -1.0, null, null)
+      )
+      val expected = prepareCompleteDataset(
+        (2, 1, 1.0, "maxima", 0l),
+        (3, 1, 0.0, "maxima", 0l),
+        (4, 1, 0.0, "maxima", 0l),
+        (5, 1, 0.0, "maxima", 0l)
+      )
+
+      val result = input.allExtremas("x", "y")
+
+      assertDataFrameEquals(expected, result)
+    }
+
+    it("allExtremas should return all extrema points complex scenario 2") {
+      val input = prepareCompleteDataset(
+        (1, 0, null, null, null),
+        (2, 1, -1.0, "minima", 0l),
+        (3, 1, 0.0, "minima", 0l),
+        (4, 1, 0.0, "minima", 0l),
+        (5, 1, 0.0, "minima", 0l),
+        (6, 0, 1.0, null, null)
+      )
+      val expected = prepareCompleteDataset(
+        (2, 1, -1.0, "minima", 0l),
+        (3, 1, 0.0, "minima", 0l),
+        (4, 1, 0.0, "minima", 0l),
+        (5, 1, 0.0, "minima", 0l)
+      )
+
+      val result = input.allExtremas("x", "y")
+
+      assertDataFrameEquals(expected, result)
+    }
+
+    it("allExtremas should return all extrema points complex scenario 3") {
+      val input = prepareCompleteDataset(
+        (0, 0, null, null, null),
+        (1, 1, 1.0, "maxima", 0l),
+        (2, 0, -1.0, "minima", 1l),
+        (3, 0.5, 0.5, null, null),
+        (4, 0.5, 0.0, null, null),
+        (5, 0.5, 0.0, null, null),
+        (6, 1, 0.5, "maxima", 2l),
+        (7, 0, -1.0, null, null)
+      )
+      val expected = prepareCompleteDataset(
+        (1, 1, 1.0, "maxima", 0l),
+        (2, 0, -1.0, "minima", 1l),
+        (6, 1, 0.5, "maxima", 2l)
+      )
+
+      val result = input.allExtremas("x", "y")
+
+      assertDataFrameEquals(expected, result)
+    }
+
+    it("allExtremas should return all extrema points complex scenario 4") {
+      val input = prepareCompleteDataset(
+        (0, 0, null, null, null),
+        (1, -1, -1.0, "maxima", 0l),
+        (2, 0, 1.0, "minima", 1l),
+        (3, -0.5, -0.5, null, null),
+        (4, -0.5, 0.0, null, null),
+        (5, -0.5, 0.0, null, null),
+        (6, -1, -0.5, "maxima", 2l),
+        (7, 0, 1.0, null, null)
+      )
+      val expected = prepareCompleteDataset(
+        (1, -1, -1.0, "maxima", 0l),
+        (2, 0, 1.0, "minima", 1l),
+        (6, -1, -0.5, "maxima", 2l)
+      )
+
+      val result = input.allExtremas("x", "y")
+
+      assertDataFrameEquals(expected, result)
     }
 
     it("allExtremas should return all extrema points") {
@@ -105,5 +222,9 @@ class ExtremaSetTaskSpec extends SparkSpec {
 
       assertDataFrameEquals(expected, crossovers)
     }
+  }
+
+  private def prepareCompleteDataset(rows: (Double, Double, java.lang.Double, String, java.lang.Long)*): DataFrame = {
+    rows.toDF("x", "y", "diff", "extrema", "extrema_index")
   }
 }

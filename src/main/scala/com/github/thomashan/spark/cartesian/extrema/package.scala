@@ -3,8 +3,8 @@ package com.github.thomashan.spark.cartesian
 import org.apache.spark.mllib.rdd.RDDFunctions._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
-import org.apache.spark.sql.expressions.Window.{currentRow, unboundedFollowing, unboundedPreceding}
-import org.apache.spark.sql.functions.{col, first, last}
+import org.apache.spark.sql.expressions.Window.{currentRow, unboundedPreceding}
+import org.apache.spark.sql.functions._
 
 package object extrema {
 
@@ -61,13 +61,31 @@ package object extrema {
     }
 
     def allExtremas(xAxisName: String, yAxisName: String): DataFrame = {
-      dataFrame
-        .withColumn("last_extrema", last("extrema", true).over(Window.orderBy(xAxisName).rowsBetween(unboundedPreceding, currentRow)))
-        .withColumn("first_extrema", first("extrema", true).over(Window.orderBy(xAxisName).rowsBetween(currentRow, unboundedFollowing)))
-        .where($"first_extrema".isNotNull && $"last_extrema".isNotNull)
-        .where($"extrema".isNotNull || $"diff" === 0)
-        .withColumn("last_extrema_index", last("extrema_index", true).over(Window.orderBy(xAxisName).rowsBetween(unboundedPreceding, currentRow)))
-        .select(col(xAxisName), col(yAxisName), $"diff", $"last_extrema".as("extrema"), $"last_extrema_index".as("extrema_index"))
+      val startOfFlats = dataFrame
+        .withColumn("null_out_x", when($"diff" === 0, null).otherwise(col(xAxisName)))
+        .withColumn("start_of_flat_x", last("null_out_x", true).over(Window.orderBy(xAxisName).rowsBetween(unboundedPreceding, currentRow)))
+
+      val zeroDiffAreas = startOfFlats
+        .groupBy("start_of_flat_x")
+        .agg(
+          first("extrema").as("zero_diff_extrema"),
+          first("extrema_index").as("zero_diff_extrema_index"),
+          count(col(xAxisName)).as("count")
+        )
+        .where($"count" > 1)
+
+
+      // FIXME: should refactor as the startOfFlats needs to be cached
+      val result = startOfFlats
+        .join(zeroDiffAreas, Seq("start_of_flat_x"), "left")
+        .withColumn("temp_extrema", when($"diff" === 0, $"zero_diff_extrema").otherwise($"extrema"))
+        .withColumn("temp_extrema_index", when($"diff" === 0, $"zero_diff_extrema_index").otherwise($"extrema_index"))
+        .select(col(xAxisName), col(yAxisName), $"diff", $"temp_extrema".as("extrema"), $"temp_extrema_index".as("extrema_index"))
+        .where($"extrema".isNotNull)
+
+      result.show
+
+      result
     }
   }
 
