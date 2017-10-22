@@ -75,11 +75,7 @@ gettyimages/spark bin/spark-submit \
 /data/random.csv true x y /data/random_extremas
 ```
 
-This will produce
-
-** FIXME: what happened to the data?**
-
-
+This will create directory named `examples/random_extremas` which contains the csv file of the extremas.
 
 ### Extrema calculation
 
