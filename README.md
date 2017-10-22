@@ -5,6 +5,19 @@ Algorithm to that find local extremas using spark
 ## Assumption
 * all points are differentiable (e.g. it has not duplicate points in the same x axis)
 
+## Scenarios
+The easiest calculation is when the differentiation changes signs.
+* +ve -> -ve
+* -ve -> +ve
+
+The other cases are
+* +ve -> any number of 0's -> -ve (scenario 1)
+* -ve -> any number of 0's -> +ve (scenario 2)
+* +ve -> any number of 0's -> +ve (scenario 3)
+* -ve -> any number of 0's -> -ve (scenario 4)
+
+### Simple cases
+
 ## Data
 Test data is available in csv format in
 `src/test/resources/data/cartesian_points.csv`
@@ -42,18 +55,12 @@ You can see there are local extremas in the following points
 * (2.5, 0), (3, 0), (3.5, 0) minima
 * (4, 0.5) maxima
 
-## Scenarios
-### Simple cases
+** FIXME: what happened to the data?**
 
 
 
 ### Extrema calculation
-The easist calculation is when the differientation changes signs.
-Either positive gradient to negative gradient or negative gradient to positive gradient.
 
-The other cases are
-* +ve -> 0 -> -ve
-* -ve -> 0 -> +ve
 
 
 # Time series quotes
