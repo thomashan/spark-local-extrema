@@ -4,10 +4,11 @@ import com.github.thomashan.spark.SparkJob
 import com.github.thomashan.spark.cartesian.diff.DifferentiateTask
 import com.github.thomashan.spark.common.LoadCsvFileTask
 
-// spark-submit --master local[*] --driver-memory 4g \
-// --class com.github.thomashan.spark.cartesian.extrema.CompleteDatasetWithJob \
-// target/scala-2.11/spark-jobs-assembly-0.1-SNAPSHOT.jar inputFile true xAxisName yAxisName outputFile
-class CompleteDataset extends SparkJob {
+// docker run --rm -it -p 4040:4040 \
+// -v $(pwd)/examples:/data \
+// -v $(pwd)/target/scala-2.11/spark-local-extrema-assembly-0.1-SNAPSHOT.jar:/job.jar \
+// gettyimages/spark bin/spark-submit --master local[*] --driver-memory 2g --class com.github.thomashan.spark.cartesian.extrema.CompleteDatasetJob /job.jar /data/random.csv true x y /data/random_extremas
+class CompleteDatasetJob extends SparkJob {
   override val applicationName: String = getClass.getName
 
   override protected def run(args: Array[String]): Unit = {
@@ -54,6 +55,6 @@ class CompleteDataset extends SparkJob {
   }
 }
 
-object CompleteDataset extends App {
-  new CompleteDataset().run(args)
+object CompleteDatasetJob extends App {
+  new CompleteDatasetJob().run(args)
 }
