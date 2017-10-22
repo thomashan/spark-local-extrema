@@ -13,6 +13,10 @@ class ExtremaSetTaskSpec extends SparkSpec {
   }
 
   describe("implementation details") {
+    it("allExtremas should return all extrema points 2") {
+
+    }
+
     it("allExtremas should return all extrema points") {
       val input = Seq(
         (0.5, 0.5, 1d, null, null),

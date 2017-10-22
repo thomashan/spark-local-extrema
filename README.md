@@ -42,6 +42,11 @@ You can see there are local extremas in the following points
 * (2.5, 0), (3, 0), (3.5, 0) minima
 * (4, 0.5) maxima
 
+## Scenarios
+### Simple cases
+
+
+
 ### Extrema calculation
 The easist calculation is when the differientation changes signs.
 Either positive gradient to negative gradient or negative gradient to positive gradient.
