@@ -1,8 +1,6 @@
 package com.github.thomashan.spark.cartesian.extrema
 
 import com.github.thomashan.spark.SparkJob
-import com.github.thomashan.spark.cartesian.diff.DifferentiateTask
-import com.github.thomashan.spark.common.LoadCsvFileTask
 
 // docker run --rm -it -p 4040:4040 \
 // -v $(pwd)/examples:/data \
@@ -18,40 +16,13 @@ class CompleteDatasetJob extends SparkJob {
     val yAxisName = args(3)
     val outputFile = args(4)
 
-    val input = new LoadCsvFileTask()
-      .run(Map(
-        "inputFile" -> inputFile,
-        "header" -> header
-      )).get.cache
-
-    val diff = new DifferentiateTask()
-      .run(Map(
-        "input" -> input,
-        "xAxisName" -> xAxisName,
-        "yAxisName" -> yAxisName
-      )).get.cache
-
-    val extremaSet = new ExtremaSetTask()
-      .run(Map(
-        "input" -> diff,
-        "xAxisName" -> xAxisName,
-        "yAxisName" -> yAxisName
-      )).get
-
-    val result = input
-      .join(extremaSet, Seq(xAxisName, yAxisName), "left")
-      .select(xAxisName, yAxisName, "extrema", "extrema_index")
-
-    result
-      .coalesce(1)
-      .orderBy(xAxisName)
-      .write
-      .option("header", true)
-      .mode("overwrite")
-      .csv(outputFile)
-
-    input.unpersist
-    diff.unpersist
+    new CompleteDatasetTask().run(Map(
+      "inputFile" -> inputFile,
+      "header" -> header,
+      "xAxisName" -> xAxisName,
+      "yAxisName" -> yAxisName,
+      "outputFile" -> outputFile
+    ))
   }
 }
 
