@@ -26,18 +26,26 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
         "yAxisName" -> yAxisName
       )).get.cache
 
-    val extremaSet = new ExtremaSetTask()
+    val reducedExtremaSet = new ReducedExtremaSetTask()
       .run(Map(
         "input" -> diff,
         "xAxisName" -> xAxisName,
         "yAxisName" -> yAxisName
       )).get
 
-    val result = input
+    val extremaSet = new CompleteExtremaSetTask()
+      .run(Map(
+        "diff" -> diff,
+        "reducedExtremaSet" -> reducedExtremaSet,
+        "xAxisName" -> xAxisName,
+        "yAxisName" -> yAxisName
+      )).get
+
+    val completeDataset = input
       .join(extremaSet, Seq(xAxisName, yAxisName), "left")
       .select(xAxisName, yAxisName, "extrema", "extrema_index")
 
-    result
+    completeDataset
       .coalesce(1)
       .orderBy(xAxisName)
       .write
@@ -48,6 +56,6 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
     input.unpersist
     diff.unpersist
 
-    Some(result)
+    Some(completeDataset)
   }
 }

@@ -4,13 +4,13 @@ import com.github.thomashan.spark.{DataFrameUtils, SparkSpec}
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 
-class ExtremaSetTaskSpec extends SparkSpec {
-  var extremaSetTask: ExtremaSetTask = _
+class CompleteExtremaSetTaskSpec extends SparkSpec {
+  var extremaSetTask: CompleteExtremaSetTask = _
 
   import spark.implicits._
 
   before {
-    extremaSetTask = new ExtremaSetTask()
+    extremaSetTask = new CompleteExtremaSetTask()
   }
 
   describe("implementation details") {
@@ -204,16 +204,18 @@ class ExtremaSetTaskSpec extends SparkSpec {
 
   describe("find differentiation crossover") {
     it("run should produce correct extrema types") {
-      val input = loadCsvFile("src/test/resources/data/cartesian_points_diff.csv")
-
       val u = udf((i: Int) => i.toLong)
+      val diff = loadCsvFile("src/test/resources/data/cartesian_points_diff.csv")
+      val reducedExtremaSet = loadCsvFile("src/test/resources/data/cartesian_points_reduced_extrema_set.csv")
+        .withColumn("extrema_index", u($"extrema_index"))
+
       val expected = DataFrameUtils.setNullableStateForAllColumns(loadCsvFile("src/test/resources/data/cartesian_points_extrema_set.csv")
-        .withColumn("temp_extrema_index", u($"extrema_index"))
-        .select($"x", $"y", $"extrema", $"temp_extrema_index".as("extrema_index")), true)
+        .withColumn("extrema_index", u($"extrema_index")), true)
 
       val crossovers = extremaSetTask.run(
         Map(
-          "input" -> input,
+          "diff" -> diff,
+          "reducedExtremaSet" -> reducedExtremaSet,
           "xAxisName" -> "x",
           "yAxisName" -> "y"
         )

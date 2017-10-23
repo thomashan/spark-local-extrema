@@ -1,0 +1,4 @@
+x,y,diff,extrema,extrema_index
+1,1,1.0,maxima,0
+2.5,0,-1.0,minima,1
+4,0.5,1.0,maxima,2
