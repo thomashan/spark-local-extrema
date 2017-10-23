@@ -2,8 +2,6 @@ package com.github.thomashan.spark.cartesian
 
 import org.apache.spark.mllib.rdd.RDDFunctions._
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.expressions.Window
-import org.apache.spark.sql.expressions.Window.{currentRow, unboundedPreceding}
 import org.apache.spark.sql.functions._
 
 package object extrema {
@@ -61,11 +59,7 @@ package object extrema {
     }
 
     def allExtremas(xAxisName: String, yAxisName: String): DataFrame = {
-      val startOfFlats = dataFrame
-        .withColumn("null_out_x", when($"diff" === 0, null).otherwise(col(xAxisName)))
-        .withColumn("start_of_flat_x", last("null_out_x", true).over(Window.orderBy(xAxisName).rowsBetween(unboundedPreceding, currentRow)))
-
-      val zeroDiffAreas = startOfFlats
+      val zeroDiffAreas = dataFrame
         .groupBy("start_of_flat_x")
         .agg(
           first("extrema").as("zero_diff_extrema"),
@@ -75,13 +69,14 @@ package object extrema {
         .where($"count" > 1)
 
 
-      // FIXME: should refactor as the startOfFlats needs to be cached
-      startOfFlats
+      dataFrame
         .join(zeroDiffAreas, Seq("start_of_flat_x"), "left")
         .withColumn("temp_extrema", when($"diff" === 0, $"zero_diff_extrema").otherwise($"extrema"))
         .withColumn("temp_extrema_index", when($"diff" === 0, $"zero_diff_extrema_index").otherwise($"extrema_index"))
         .select(col(xAxisName), col(yAxisName), $"diff", $"temp_extrema".as("extrema"), $"temp_extrema_index".as("extrema_index"))
         .where($"extrema".isNotNull)
+        .select(xAxisName, yAxisName, "extrema", "extrema_index")
+        .orderBy(xAxisName)
     }
   }
 

@@ -33,7 +33,8 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
         "yAxisName" -> yAxisName
       )).get
 
-    val extremaSet = new CompleteExtremaSetTask()
+    val completeExtremaSetTask = new CompleteExtremaSetTask()
+    val extremaSet = completeExtremaSetTask
       .run(Map(
         "diff" -> diff,
         "reducedExtremaSet" -> reducedExtremaSet,
@@ -55,6 +56,7 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
 
     input.unpersist
     diff.unpersist
+    completeExtremaSetTask.caches.map(dfs => dfs.map(df => df.unpersist))
 
     Some(completeDataset)
   }
