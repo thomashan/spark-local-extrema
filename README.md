@@ -77,9 +77,25 @@ gettyimages/spark bin/spark-submit \
 
 This will create directory named `examples/random_extremas` which contains the csv file of the extremas.
 
-### Extrema calculation
+The plot of the first 200 points can be seen in 
+`images/first_200_points.png`
+![First 200 points](images/first_200_points.png)
 
+# Complex dataset (high low time series)
+In this section we find the local extremas for more complex dataset like candlestick.
 
+## Rules
+Simple rules like looking at the diff transitions from +ve -> -ve or -ve -> +ve does not apply to high low time series data.
+The low point of the maxima has to be greater than all surrounding highs to be to considered maxima and conversely 
+the highest point of the minima has to be less than all the surrounding lows to be considered minima. 
+
+* a point is considered a maxima if the low point is greater than the surrounding highs
+* a point is considered a minima if the high point is less than the surrounding lows
+
+## Scenarios
+The easiest calculation is when the differentiation changes signs.
+* +ve -> -ve and low is greater than surrounding lows
+* +ve -> -ve and low is greater than surrounding highs
 
 # Time series quotes
 ## FIXME: put quotes in here 
