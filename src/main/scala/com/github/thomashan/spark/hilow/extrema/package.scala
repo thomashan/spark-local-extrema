@@ -30,9 +30,9 @@ package object extrema {
           val lowDiff0 = element0.getDouble(4)
           val lowDiff1 = element1.getDouble(4)
 
-          val extrema = if (lowDiff0 > 0 && hiDiff1 < 0) {
+          val extrema = if (lowDiff0 > 0 && lowDiff1 < 0) {
             "maxima"
-          } else if (hiDiff0 < 0 && lowDiff1 > 0) {
+          } else if (hiDiff0 < 0 && hiDiff1 > 0) {
             "minima"
           } else {
             null

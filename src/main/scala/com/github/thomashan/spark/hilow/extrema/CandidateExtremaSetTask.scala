@@ -3,7 +3,7 @@ package com.github.thomashan.spark.hilow.extrema
 import com.github.thomashan.spark.SparkTask
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
-class ReducedExtremaSetTask(implicit val spark: SparkSession) extends SparkTask {
+class CandidateExtremaSetTask(implicit val spark: SparkSession) extends SparkTask {
 
   import spark.implicits._
 

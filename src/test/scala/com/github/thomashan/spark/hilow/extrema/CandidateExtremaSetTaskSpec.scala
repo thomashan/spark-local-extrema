@@ -5,21 +5,18 @@ import com.github.thomashan.spark.{DataFrameUtils, SparkSpec}
 import org.apache.spark.sql.DataFrame
 
 class CandidateExtremaSetTaskSpec extends SparkSpec {
-  var reducedExtremaSetTask: ReducedExtremaSetTask = _
+  var reducedExtremaSetTask: CandidateExtremaSetTask = _
 
   before {
-    reducedExtremaSetTask = new ReducedExtremaSetTask()
+    reducedExtremaSetTask = new CandidateExtremaSetTask()
   }
 
   describe("implementation details") {
     it("findCrossovers should calculate cross overs") {
       val input = loadInputDataFrame
-      val expected = DataFrameUtils.setNullableState(loadCsv("src/test/resources/data/hi_low_reduced_extrema_set.csv"), true, "extrema")
+      val expected = DataFrameUtils.setNullableState(loadCsv("src/test/resources/data/hi_low_candidate_extrema_set.csv"), true, "extrema")
 
       val result = input.findCrossovers("x", "hi", "low")
-
-      println("expected count:" + expected.count)
-      println("result count:" + result.count)
 
       assertDataFrameEquals(expected, result)
     }
