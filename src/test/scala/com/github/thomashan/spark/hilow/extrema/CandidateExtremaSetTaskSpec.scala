@@ -4,6 +4,7 @@ import com.github.thomashan.spark.common.LoadCsvFileTask
 import com.github.thomashan.spark.{DataFrameUtils, SparkSpec}
 import org.apache.spark.sql.DataFrame
 
+
 class CandidateExtremaSetTaskSpec extends SparkSpec {
   var reducedExtremaSetTask: CandidateExtremaSetTask = _
 
@@ -13,18 +14,29 @@ class CandidateExtremaSetTaskSpec extends SparkSpec {
 
   describe("implementation details") {
     it("findCrossovers should calculate cross overs") {
-      val input = loadInputDataFrame
+      val input = loadInputDataFrame("src/test/resources/data/hi_low_diff.csv")
       val expected = DataFrameUtils.setNullableState(loadCsv("src/test/resources/data/hi_low_candidate_extrema_set.csv"), true, "extrema")
 
       val result = input.findCrossovers("x", "hi", "low")
 
       assertDataFrameEquals(expected, result)
     }
+
+    it("removeDuplicateExtremas should remove duplicate extremas") {
+      val input = loadInputDataFrame("src/test/resources/data/hi_low_candidate_extrema_set.csv")
+      val expected = DataFrameUtils.setNullableStateForAllColumns(
+        loadCsv("src/test/resources/data/hi_low_candidate_extrema_set_duplicated_removed.csv"), true
+      )
+
+      val result = input.removeDuplicateExtremas("x", "hi", "low")
+
+      assertDataFrameEquals(expected, result)
+    }
   }
 
-  private def loadInputDataFrame(): DataFrame = {
+  private def loadInputDataFrame(csvFile: String): DataFrame = {
     new LoadCsvFileTask().run(Map(
-      "inputFile" -> "src/test/resources/data/hi_low_diff.csv",
+      "inputFile" -> csvFile,
       "header" -> true
     )).get
   }
