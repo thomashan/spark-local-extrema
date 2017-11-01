@@ -10,11 +10,18 @@ package object extrema {
 
     import dataFrame.sqlContext.implicits._
 
-    def findCrossovers(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
+    def join(xAxisName: String, extremas: DataFrame): DataFrame = {
+      dataFrame
+        .join(extremas, Seq(xAxisName), "left")
+        .orderBy(xAxisName)
+    }
+
+    def findCandidateExtremas(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
       val hiSeriesDiff = "diff_" + hiSeriesName
       val lowSeriesDiff = "diff_" + lowSeriesName
 
       dataFrame
+        // FIXME: get rid of unused columns
         .select(col(xAxisName), col(hiSeriesName), col(lowSeriesName), col(hiSeriesDiff), col(lowSeriesDiff))
         .where(col(hiSeriesDiff) =!= 0 || col(lowSeriesDiff) =!= 0)
         .rdd
@@ -23,8 +30,6 @@ package object extrema {
           val element0 = array.head
           val element1 = array.last
           val x0 = element0.getDouble(0)
-          val hi0 = element0.getDouble(1)
-          val low0 = element0.getDouble(2)
           val hiDiff0 = element0.getDouble(3)
           val hiDiff1 = element1.getDouble(3)
           val lowDiff0 = element0.getDouble(4)
@@ -38,9 +43,9 @@ package object extrema {
             null
           }
 
-          (x0, hi0, low0, hiDiff0, lowDiff0, extrema)
+          (x0, extrema)
         }
-        .toDF(xAxisName, hiSeriesName, lowSeriesName, hiSeriesDiff, lowSeriesDiff, "extrema")
+        .toDF(xAxisName, "extrema")
         .where($"extrema".isNotNull)
     }
 
@@ -54,6 +59,7 @@ package object extrema {
 
       dataFrame
         .orderBy("x")
+        // FIXME: get rid of unused columns
         .select(xAxisName, hiSeriesName, lowSeriesName, hiSeriesDiff, lowSeriesDiff, "extrema")
         .rdd
         .sliding(3)

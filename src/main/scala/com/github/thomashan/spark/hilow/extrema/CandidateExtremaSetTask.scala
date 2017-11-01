@@ -17,7 +17,7 @@ class CandidateExtremaSetTask(implicit val spark: SparkSession) extends SparkTas
 
     Some(
       diff
-        .findCrossovers(xAxisName, hiSeriesName, lowSeriesName)
+        .findCandidateExtremas(xAxisName, hiSeriesName, lowSeriesName)
         .rdd
         .zipWithIndex()
         .map { tuple =>
