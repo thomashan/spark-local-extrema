@@ -25,16 +25,13 @@ class CandidateExtremaSetTaskSpec extends SparkSpec {
       assertDataFrameEquals(expected, result)
     }
 
-    it("removeDuplicateExtremas should remove duplicate extremas") {
-      val input = loadCsvs(
-        "src/test/resources/data/hi_low_diff.csv",
-        "src/test/resources/data/hi_low_candidate_extrema_set.csv"
-      )
-      val expected = DataFrameUtils.setNullableStateForAllColumns(
-        loadCsv("src/test/resources/data/hi_low_candidate_extrema_set_duplicated_removed.csv"), true
-      )
+    it("removeDuplicate should remove unused extremas") {
+      val input = loadCsv("src/test/resources/data/hi_low_candidate_extrema_set.csv")
+      val expected = DataFrameUtils.setNullableState(DataFrameUtils.setNullableStateForAllColumns(
+        loadCsv("src/test/resources/data/hi_low_candidate_extrema_set_deduplicated.csv"), false
+      ), true, "extrema")
 
-      val result = input.removeDuplicateExtremas("x", "hi", "low")
+      val result = input.removeDuplicate("x", "hi", "low")
 
       assertDataFrameEquals(expected, result)
     }
@@ -42,10 +39,7 @@ class CandidateExtremaSetTaskSpec extends SparkSpec {
 
   private def loadCsvs(csvFiles: String*): DataFrame = {
     csvFiles.map(loadCsv(_))
-      .reduce { (csvFile1, csvFile2) =>
-        csvFile1
-          .join("x", csvFile2)
-      }
+      .reduce((csvFile1, csvFile2) => csvFile1.join("x", csvFile2))
       .orderBy("x")
   }
 
