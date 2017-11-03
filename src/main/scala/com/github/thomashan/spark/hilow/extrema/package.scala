@@ -3,7 +3,7 @@ package com.github.thomashan.spark.hilow
 import org.apache.spark.mllib.rdd.RDDFunctions._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
-import org.apache.spark.sql.functions.{col, lag, min, row_number, sum, when}
+import org.apache.spark.sql.functions.{col, lag, max, min, row_number, sum, when}
 
 package object extrema {
 
@@ -147,7 +147,9 @@ package object extrema {
         .withColumn("previous_extrema", lag("extrema", 1).over(Window.orderBy(xAxisName)))
         .withColumn("increment", when($"extrema" =!= $"previous_extrema", 1).otherwise(0))
         .withColumn("partition", sum("increment").over(Window.orderBy(xAxisName)))
-        .withColumn("partition_extrema_value", min("extrema_value").over(Window.partitionBy("partition")))
+        .withColumn("partition_extrema_min_value", min("extrema_value").over(Window.partitionBy("partition")))
+        .withColumn("partition_extrema_max_value", max("extrema_value").over(Window.partitionBy("partition")))
+        .withColumn("partition_extrema_value", when($"extrema" === "maxima", $"partition_extrema_max_value").otherwise($"partition_extrema_min_value"))
         .where($"partition_extrema_value" === $"extrema_value")
         .withColumn("row_in_partition", row_number().over(Window.orderBy(xAxisName).partitionBy("partition")))
         .where($"row_in_partition" === 1)
