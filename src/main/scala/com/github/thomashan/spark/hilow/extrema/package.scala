@@ -2,7 +2,8 @@ package com.github.thomashan.spark.hilow
 
 import org.apache.spark.mllib.rdd.RDDFunctions._
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.functions.{col, when}
+import org.apache.spark.sql.expressions.Window
+import org.apache.spark.sql.functions.{col, lag, min, row_number, sum, when}
 
 package object extrema {
 
@@ -141,87 +142,16 @@ package object extrema {
     }
 
     def removeDuplicate(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
-      // FIXME: cache the dataframe
-      val df = dataFrame
+      dataFrame
+        .withColumn("extrema_value", when($"extrema" === "maxima", col(lowSeriesName)).otherwise(col(hiSeriesName)))
+        .withColumn("previous_extrema", lag("extrema", 1).over(Window.orderBy(xAxisName)))
+        .withColumn("increment", when($"extrema" =!= $"previous_extrema", 1).otherwise(0))
+        .withColumn("partition", sum("increment").over(Window.orderBy(xAxisName)))
+        .withColumn("partition_extrema_value", min("extrema_value").over(Window.partitionBy("partition")))
+        .where($"partition_extrema_value" === $"extrema_value")
+        .withColumn("row_in_partition", row_number().over(Window.orderBy(xAxisName).partitionBy("partition")))
+        .where($"row_in_partition" === 1)
         .select(xAxisName, hiSeriesName, lowSeriesName, "extrema")
-        .orderBy(xAxisName)
-
-      val first = df.firstExtrema(xAxisName, hiSeriesName, lowSeriesName)
-      val last = df.lastExtrema(xAxisName, hiSeriesName, lowSeriesName)
-
-      df
-        .rdd
-        .sliding(3)
-        .map { array =>
-          val element0 = array.head
-          val element1 = array(1)
-          val element2 = array.last
-
-          val x = element1.getDouble(0)
-
-          val previousExtrema = element0.getString(3)
-          val currentExtrema = element1.getString(3)
-          val nextExtrema = element2.getString(3)
-
-          val previousHi = element0.getDouble(1)
-          val currentHi = element1.getDouble(1)
-          val nextHi = element2.getDouble(1)
-
-          val previousLow = element0.getDouble(2)
-          val currentLow = element1.getDouble(2)
-          val nextLow = element2.getDouble(2)
-
-          def duplicate: Boolean = {
-            if (currentExtrema == previousExtrema || currentExtrema == nextExtrema) true else false
-          }
-
-          def previousMaxValueExtrema: String = {
-            if (previousLow < currentLow) currentExtrema else null
-          }
-
-          def nextMaxValueExtrema: String = {
-            if (currentLow >= nextLow) currentExtrema else null
-          }
-
-          def previousMinValueExtrema: String = {
-            if (previousHi > currentHi) currentExtrema else null
-          }
-
-          def nextMinValueExtrema: String = {
-            if (currentHi <= nextHi) currentExtrema else null
-          }
-
-          def minValueExtrema: String = {
-            if (previousHi > currentHi && currentHi <= nextHi) currentExtrema else null
-          }
-
-          def maxValueExtrema: String = {
-            if (previousLow < currentLow && currentLow >= nextLow) currentExtrema else null
-          }
-
-          val extrema = duplicate match {
-            case true => currentExtrema match {
-              case "maxima" => currentExtrema match {
-                case currentExtrema if currentExtrema == previousExtrema && currentExtrema == nextExtrema => maxValueExtrema
-                case currentExtrema if currentExtrema == previousExtrema => previousMaxValueExtrema
-                case _ => nextMaxValueExtrema
-              }
-              case "minima" => currentExtrema match {
-                case currentExtrema if currentExtrema == previousExtrema && currentExtrema == nextExtrema => minValueExtrema
-                case currentExtrema if currentExtrema == previousExtrema => previousMinValueExtrema
-                case _ => nextMinValueExtrema
-              }
-            }
-            case false => currentExtrema
-          }
-
-          (x, currentHi, currentLow, extrema)
-        }
-        .toDF(xAxisName, hiSeriesName, lowSeriesName, "extrema")
-        .union(first)
-        .union(last)
-        .orderBy(xAxisName)
-        .where($"extrema".isNotNull)
     }
 
     def removeUnusedExtremas(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
