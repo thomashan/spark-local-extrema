@@ -22,7 +22,7 @@ class CompleteExtremaSetTask(implicit val spark: SparkSession) extends SparkTask
       .withColumn("start_of_flat_x", last("null_out_x", true).over(Window.orderBy(xAxisName).rowsBetween(unboundedPreceding, currentRow)))
       .cache
 
-    caches = Some(Seq(startOfFlats))
+    addToCache(startOfFlats)
 
     Some(
       startOfFlats
