@@ -154,6 +154,7 @@ package object extrema {
         .withColumn("row_in_partition", row_number().over(Window.orderBy(xAxisName).partitionBy("partition")))
         .where($"row_in_partition" === 1)
         .select(xAxisName, hiSeriesName, lowSeriesName, "extrema")
+
     }
 
     def removeUnusedExtremas(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
@@ -164,8 +165,11 @@ package object extrema {
         .join(pass1, Seq(xAxisName, hiSeriesName, lowSeriesName), "left")
         .join(pass2, Seq(xAxisName, hiSeriesName, lowSeriesName), "left")
         .withColumn("extrema", when($"extrema_pass1".isNotNull && $"extrema_pass2".isNotNull, $"extrema_pass1"))
+        .select("x", "hi", "low", "extrema")
+        .union(pass1.orderBy(xAxisName).limit(2).select(col(xAxisName), col(hiSeriesName), col(lowSeriesName), $"extrema_pass1").as("extrema"))
+        .union(pass2.orderBy(col(xAxisName).desc).limit(2).select(col(xAxisName), col(hiSeriesName), col(lowSeriesName), $"extrema_pass2").as("extrema"))
         .where($"extrema".isNotNull)
-        .orderBy()
+        .orderBy("x")
     }
 
     def removeUnusedExtremasPass1(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
@@ -191,16 +195,21 @@ package object extrema {
 
           val currentExtrema = element0.getString(3)
 
-          val extrema = currentExtrema match {
-            case "maxima" => currentLow match {
-              case currentLow if currentLow > element1Hi && element1Hi < element1Low => currentExtrema
-              case currentLow if currentLow < element2Low => null
-              case _ => currentExtrema
+          val extrema = if (currentExtrema == "maxima") {
+            if (currentLow > element1Hi && element1Hi < element2Low) {
+              currentExtrema
+            } else if (currentLow < element2Low) {
+              null
+            } else {
+              currentExtrema
             }
-            case "minima" => currentHi match {
-              case currentHi if currentHi < element1Low && element1Low > element2Hi => currentExtrema
-              case currentHi if currentHi > element2Hi => null
-              case _ => currentExtrema
+          } else {
+            if (currentHi < element1Low && element1Low > element2Hi) {
+              currentExtrema
+            } else if (currentHi > element2Hi) {
+              null
+            } else {
+              currentExtrema
             }
           }
 
@@ -234,16 +243,21 @@ package object extrema {
 
           val currentExtrema = element2.getString(3)
 
-          val extrema = currentExtrema match {
-            case "maxima" => element0Low match {
-              case element0Low if element0Low > element1Hi && element1Hi < currentLow => currentExtrema
-              case element0Low if element0Low < currentLow => currentExtrema
-              case _ => null
+          val extrema = if (currentExtrema == "maxima") {
+            if (element0Low > element1Hi && element1Hi < currentLow) {
+              currentExtrema
+            } else if (element0Low < currentLow) {
+              currentExtrema
+            } else {
+              null
             }
-            case "minima" => element0Hi match {
-              case element0Hi if element0Hi < element1Low && element1Low > currentHi => currentExtrema
-              case element0Hi if element0Hi > currentHi => currentExtrema
-              case _ => null
+          } else {
+            if (element0Hi < element1Low && element1Low > currentHi) {
+              currentExtrema
+            } else if (element0Hi > currentHi) {
+              currentExtrema
+            } else {
+              null
             }
           }
 

@@ -27,9 +27,7 @@ class CandidateExtremaSetTaskSpec extends SparkSpec {
 
     it("removeDuplicate should remove unused extremas") {
       val input = loadCsv("src/test/resources/data/hi_low_candidate_extrema_set.csv")
-      val expected = DataFrameUtils.setNullableState(DataFrameUtils.setNullableStateForAllColumns(
-        loadCsv("src/test/resources/data/hi_low_candidate_extrema_set_deduplicated.csv"), false
-      ), true, "extrema")
+      val expected = loadCsv("src/test/resources/data/hi_low_candidate_extrema_set_deduplicated.csv")
 
       val result = input.removeDuplicate("x", "hi", "low")
 
