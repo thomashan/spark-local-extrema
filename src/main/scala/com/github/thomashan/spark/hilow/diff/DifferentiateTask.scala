@@ -13,7 +13,7 @@ class DifferentiateTask(implicit val spark: SparkSession) extends SparkTask {
     val hiSeriesName = taskParameters("hiSeriesName").toString
     val lowSeriesName = taskParameters("lowSeriesName").toString
 
-    Some(input
+    val diff = input
       .select(xAxisName, hiSeriesName, lowSeriesName)
       .orderBy(xAxisName)
       .rdd
@@ -34,8 +34,11 @@ class DifferentiateTask(implicit val spark: SparkSession) extends SparkTask {
         (x1, hiSeries1, lowSeries1, hiSeriesDiff, lowSeriesDiff)
       }
       .toDF(xAxisName, hiSeriesName, lowSeriesName, "diff_" + hiSeriesName, "diff_" + lowSeriesName)
-      .join(input, Seq(xAxisName, hiSeriesName, lowSeriesName), "left")
-      .orderBy(xAxisName)
+
+    Some(
+      input
+        .join(diff, Seq(xAxisName, hiSeriesName, lowSeriesName), "left")
+        .orderBy(xAxisName)
     )
   }
 }
