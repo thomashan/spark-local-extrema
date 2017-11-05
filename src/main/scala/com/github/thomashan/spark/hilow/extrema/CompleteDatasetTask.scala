@@ -39,7 +39,7 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
     val candidateExtremaSetDedup = candidateExtremaSet
       .removeDuplicate(xAxisName, hiSeriesName, lowSeriesName)
 
-    candidateExtremaSetDedup.count
+    println(candidateExtremaSetDedup.count)
 
 //    val removeUnusedExtremasTask = new RemoveUnusedExtremasTask()
 //    val extremaSet = removeUnusedExtremasTask
