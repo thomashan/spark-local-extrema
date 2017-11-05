@@ -13,32 +13,28 @@ class DifferentiateTask(implicit val spark: SparkSession) extends SparkTask {
     val hiSeriesName = taskParameters("hiSeriesName").toString
     val lowSeriesName = taskParameters("lowSeriesName").toString
 
-    val diff = input
-      .select(xAxisName, hiSeriesName, lowSeriesName)
-      .orderBy(xAxisName)
-      .rdd
-      .sliding(2)
-      .map { array =>
-        val element0 = array.head
-        val element1 = array.last
-        val x0 = element0.getDouble(0)
-        val x1 = element1.getDouble(0)
-        val hiSeries0 = element0.getDouble(1)
-        val hiSeries1 = element1.getDouble(1)
-        val lowSeries0 = element0.getDouble(2)
-        val lowSeries1 = element1.getDouble(2)
-
-        val hiSeriesDiff = (hiSeries1 - hiSeries0) / (x1 - x0)
-        val lowSeriesDiff = (lowSeries1 - lowSeries0) / (x1 - x0)
-
-        (x1, hiSeries1, lowSeries1, hiSeriesDiff, lowSeriesDiff)
-      }
-      .toDF(xAxisName, hiSeriesName, lowSeriesName, "diff_" + hiSeriesName, "diff_" + lowSeriesName)
-
     Some(
       input
-        .join(diff, Seq(xAxisName, hiSeriesName, lowSeriesName), "left")
+        .select(xAxisName, hiSeriesName, lowSeriesName)
         .orderBy(xAxisName)
+        .rdd
+        .sliding(2)
+        .map { array =>
+          val element0 = array.head
+          val element1 = array.last
+          val x0 = element0.getDouble(0)
+          val x1 = element1.getDouble(0)
+          val hiSeries0 = element0.getDouble(1)
+          val hiSeries1 = element1.getDouble(1)
+          val lowSeries0 = element0.getDouble(2)
+          val lowSeries1 = element1.getDouble(2)
+
+          val hiSeriesDiff = (hiSeries1 - hiSeries0) / (x1 - x0)
+          val lowSeriesDiff = (lowSeries1 - lowSeries0) / (x1 - x0)
+
+          (x1, hiSeries1, lowSeries1, hiSeriesDiff, lowSeriesDiff)
+        }
+        .toDF(xAxisName, hiSeriesName, lowSeriesName, "diff_" + hiSeriesName, "diff_" + lowSeriesName)
     )
   }
 }
