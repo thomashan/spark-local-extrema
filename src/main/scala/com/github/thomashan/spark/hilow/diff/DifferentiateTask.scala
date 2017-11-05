@@ -2,7 +2,6 @@ package com.github.thomashan.spark.hilow.diff
 
 import com.github.thomashan.spark.SparkTask
 import org.apache.spark.mllib.rdd.RDDFunctions._
-import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 class DifferentiateTask(implicit val spark: SparkSession) extends SparkTask {
@@ -15,7 +14,7 @@ class DifferentiateTask(implicit val spark: SparkSession) extends SparkTask {
     val lowSeriesName = taskParameters("lowSeriesName").toString
 
     Some(input
-      .select(col(xAxisName), col(hiSeriesName), col(lowSeriesName))
+      .select(xAxisName, hiSeriesName, lowSeriesName)
       .orderBy(xAxisName)
       .rdd
       .sliding(2)
@@ -35,6 +34,8 @@ class DifferentiateTask(implicit val spark: SparkSession) extends SparkTask {
         (x1, hiSeries1, lowSeries1, hiSeriesDiff, lowSeriesDiff)
       }
       .toDF(xAxisName, hiSeriesName, lowSeriesName, "diff_" + hiSeriesName, "diff_" + lowSeriesName)
+      .join(input, Seq(xAxisName, hiSeriesName, lowSeriesName), "left")
+      .orderBy(xAxisName)
     )
   }
 }
