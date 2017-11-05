@@ -27,7 +27,7 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
       .run(Map(
         "inputFile" -> inputFile,
         "header" -> header
-      )).get.cache
+      )).get
 
     val diff = new DifferentiateTask()
       .run(createTaskParameters(input))
