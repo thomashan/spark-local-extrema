@@ -8,6 +8,11 @@ class LoadCsvFileTask(implicit val spark: SparkSession) extends SparkTask {
     val header = taskParameters("header").asInstanceOf[Boolean]
     val inputFile = taskParameters("inputFile").toString
 
-    Some(spark.read.option("header", header).option("inferSchema", true).csv(inputFile))
+    Some(spark
+      .read
+      .option("header", header)
+      .option("inferSchema", true)
+      .csv(inputFile)
+    )
   }
 }
