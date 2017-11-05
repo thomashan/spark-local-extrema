@@ -26,6 +26,7 @@ package object extrema {
         // FIXME: get rid of unused columns
         .select(col(xAxisName), col(hiSeriesName), col(lowSeriesName), col(hiSeriesDiff), col(lowSeriesDiff))
         .where(col(hiSeriesDiff) =!= 0 || col(lowSeriesDiff) =!= 0)
+        .orderBy(xAxisName)
         .rdd
         .sliding(2)
         .map { array =>
