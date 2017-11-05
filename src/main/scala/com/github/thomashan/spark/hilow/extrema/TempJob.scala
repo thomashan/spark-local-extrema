@@ -15,7 +15,7 @@ class TempJob extends SparkJob {
       .read
       .option("header", true)
       .option("inferSchema", true)
-      .csv("data/hi_low_big.csv.gz")
+      .csv("/data/hi_low_big.csv.gz")
 
     val diffs = hiLow
       .select("x", "hi", "low")
