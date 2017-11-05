@@ -86,7 +86,7 @@ class TempJob extends SparkJob {
       .select("x", "hi", "low", "extrema")
       .where($"row_in_partition" === 1)
 
-    extremasDuplicateRemoved.count
+    println(extremasDuplicateRemoved.count)
   }
 }
 
