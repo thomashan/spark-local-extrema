@@ -5,7 +5,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 
 class RemoveUnusedExtremasTask(implicit val spark: SparkSession) extends SparkTask {
   override def run(taskParameters: Map[String, Any]): Option[DataFrame] = {
-    val extremas = taskParameters("extremas").asInstanceOf[DataFrame]
+    val extremas = taskParameters("extremas").asInstanceOf[DataFrame].cache
     val extremasDeduped = taskParameters("extremas_deduped").asInstanceOf[DataFrame].cache
     addToCache(extremas, extremasDeduped)
     val xAxisName = taskParameters("xAxisName").toString
