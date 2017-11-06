@@ -39,32 +39,32 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
     val candidateExtremaSetDedup = candidateExtremaSet
       .removeDuplicate(xAxisName, hiSeriesName, lowSeriesName)
 
-    println(candidateExtremaSetDedup.count)
+    val removeUnusedExtremasTask = new RemoveUnusedExtremasTask()
+    val extremaSet = removeUnusedExtremasTask
+      .run(Map(
+        "extremas" -> candidateExtremaSet,
+        "extremas_deduped" -> candidateExtremaSetDedup,
+        "xAxisName" -> xAxisName,
+        "hiSeriesName" -> hiSeriesName,
+        "lowSeriesName" -> lowSeriesName
+      )).get
 
-//    val removeUnusedExtremasTask = new RemoveUnusedExtremasTask()
-//    val extremaSet = removeUnusedExtremasTask
-//      .run(Map(
-//        "extremas" -> candidateExtremaSet,
-//        "extremas_deduped" -> candidateExtremaSetDedup,
-//        "xAxisName" -> xAxisName,
-//        "hiSeriesName" -> hiSeriesName,
-//        "lowSeriesName" -> lowSeriesName
-//      )).get
-//
-//    val completeDataset = input
-//      .join(extremaSet, Seq(xAxisName, hiSeriesName, lowSeriesName), "left")
-//      .select(xAxisName, hiSeriesName, lowSeriesName, "extrema")
-//
-//    completeDataset
-//      .coalesce(1)
-//      .orderBy(xAxisName)
-//      .write
-//      .option("header", true)
-//      .mode("overwrite")
-//      .csv(outputFile)
-//
-//    removeUnusedExtremasTask.caches.map(cache => cache.unpersist)
+    val completeDataset = input
+      .join(extremaSet, Seq(xAxisName, hiSeriesName, lowSeriesName), "left")
+      .select(xAxisName, hiSeriesName, lowSeriesName, "extrema")
 
-    Some(candidateExtremaSetDedup)
+    completeDataset
+      .coalesce(1)
+      .orderBy(xAxisName)
+      .write
+      .option("header", true)
+      .mode("overwrite")
+      .csv(outputFile)
+
+    removeUnusedExtremasTask.caches.map(cache => cache.unpersist)
+
+    println(extremaSet.count)
+
+    Some(completeDataset)
   }
 }
