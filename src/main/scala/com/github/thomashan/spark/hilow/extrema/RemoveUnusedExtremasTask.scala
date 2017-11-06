@@ -14,10 +14,8 @@ class RemoveUnusedExtremasTask(implicit val spark: SparkSession) extends SparkTa
 
     val extremaSet = extremasDeduped
       .removeUnusedExtremas(xAxisName, hiSeriesName, lowSeriesName)
-      .repartition(200)
     val extremaSetDeduped = extremaSet
-      .removeUnusedExtremas(xAxisName, hiSeriesName, lowSeriesName)
-      .repartition(200)
+      .removeDuplicate(xAxisName, hiSeriesName, lowSeriesName)
 
     println("extremaSet.count: " + extremaSet.count)
     println("extremaSetDeduped.count: " + extremaSetDeduped.count)
