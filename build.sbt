@@ -17,6 +17,9 @@ libraryDependencies ++= Seq(
   "com.holdenkarau" %% "spark-testing-base" % "2.1.0_0.7.4" % "test"
 )
 
+// FIXME: take out when we cut over to spark 2.2.0
+test in assembly := {}
+
 assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
 
 parallelExecution in Test := false
