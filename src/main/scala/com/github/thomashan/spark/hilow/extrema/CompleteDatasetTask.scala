@@ -56,6 +56,7 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
 
     completeDataset
       .orderBy(xAxisName)
+      .repartition(200)
       .write
       .option("compression", "gzip")
       //      .option("header", true)
