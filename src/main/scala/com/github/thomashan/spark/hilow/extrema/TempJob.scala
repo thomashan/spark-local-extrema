@@ -13,9 +13,7 @@ class TempJob extends SparkJob {
   override protected def run(args: Array[String]): Unit = {
     val hiLow = spark
       .read
-      .option("header", true)
-      .option("inferSchema", true)
-      .csv("/data/hi_low_big.csv.gz")
+      .load("data/hi_low_big")
 
     val diffs = hiLow
       .select("x", "hi", "low")
