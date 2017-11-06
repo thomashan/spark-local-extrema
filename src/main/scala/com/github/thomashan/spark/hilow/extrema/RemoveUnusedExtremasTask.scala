@@ -20,7 +20,9 @@ class RemoveUnusedExtremasTask(implicit val spark: SparkSession) extends SparkTa
     println("extremaSet.count: " + extremaSet.count)
     println("extremaSetDeduped.count: " + extremaSetDeduped.count)
 
-    if (extremas.count != extremasDeduped.count) {
+    if (extremasDeduped == extremaSet || extremaSet.count == extremaSetDeduped.count) {
+      Some(extremaSetDeduped)
+    } else {
       run(Map(
         "extremas" -> extremaSet,
         "extremas_deduped" -> extremaSetDeduped,
@@ -28,8 +30,6 @@ class RemoveUnusedExtremasTask(implicit val spark: SparkSession) extends SparkTa
         "hiSeriesName" -> hiSeriesName,
         "lowSeriesName" -> lowSeriesName
       ))
-    } else {
-      Some(extremaSet)
     }
   }
 }
