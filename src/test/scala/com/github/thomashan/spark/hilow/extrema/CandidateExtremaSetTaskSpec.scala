@@ -1,7 +1,7 @@
 package com.github.thomashan.spark.hilow.extrema
 
+import com.github.thomashan.spark.SparkSpec
 import com.github.thomashan.spark.common.LoadCsvFileTask
-import com.github.thomashan.spark.{DataFrameUtils, SparkSpec}
 import org.apache.spark.sql.DataFrame
 
 
@@ -15,10 +15,7 @@ class CandidateExtremaSetTaskSpec extends SparkSpec {
   describe("implementation details") {
     it("findCandidateExtremas should find all candidate extremas") {
       val input = loadCsv("src/test/resources/data/hi_low_diff.csv")
-      val expected = DataFrameUtils.setNullableState(
-        DataFrameUtils.setNullableStateForAllColumns(
-          loadCsv("src/test/resources/data/hi_low_candidate_extrema_set.csv"), false
-        ), true, "extrema")
+      val expected = loadCsv("src/test/resources/data/hi_low_candidate_extrema_set.csv")
 
       val result = input.findCandidateExtremas("x", "hi", "low")
 
@@ -33,12 +30,6 @@ class CandidateExtremaSetTaskSpec extends SparkSpec {
 
       assertDataFrameEquals(expected, result)
     }
-  }
-
-  private def loadCsvs(csvFiles: String*): DataFrame = {
-    csvFiles.map(loadCsv(_))
-      .reduce((csvFile1, csvFile2) => csvFile1.join("x", csvFile2))
-      .orderBy("x")
   }
 
   private def loadCsv(csvFile: String): DataFrame = {

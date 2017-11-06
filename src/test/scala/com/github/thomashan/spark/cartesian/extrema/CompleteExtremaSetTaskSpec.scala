@@ -175,11 +175,11 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
         (5d, -0.5, -1d),
         (5.5, -1d, -1.6666666666666676)
       ).toDF("x", "y", "diff")
-      val expected = Seq(
+      val expected = DataFrameUtils.setNullableForAllColumns(Seq(
         (1d, 1d, 1d, "maxima"),
         (2.5, 0d, -1d, "minima"),
         (4d, 0.5, 1d, "maxima")
-      ).toDF("x", "y", "diff", "extrema")
+      ).toDF("x", "y", "diff", "extrema"), true)
 
       val result = input.findCrossovers("x", "y")
 
@@ -192,11 +192,11 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
         (2.5, 0d, -1d, "minima"),
         (4d, 0.5, 1d, "maxima")
       ).toDF("x", "y", "diff", "extrema")
-      val expected = Seq(
+      val expected = DataFrameUtils.setNullableForAllColumns(Seq(
         (1d, 1d, 1d, "maxima", 0l),
         (2.5, 0d, -1d, "minima", 1l),
         (4d, 0.5, 1d, "maxima", 2l)
-      ).toDF("x", "y", "diff", "extrema", "extrema_index")
+      ).toDF("x", "y", "diff", "extrema", "extrema_index"), true)
 
       val result = input.crossoverIndex("x", "y")
 
@@ -211,7 +211,7 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
       val reducedExtremaSet = loadCsvFile("src/test/resources/data/cartesian_points_reduced_extrema_set.csv")
         .withColumn("extrema_index", u($"extrema_index"))
 
-      val expected = DataFrameUtils.setNullableStateForAllColumns(loadCsvFile("src/test/resources/data/cartesian_points_extrema_set.csv")
+      val expected = DataFrameUtils.setNullableForAllColumns(loadCsvFile("src/test/resources/data/cartesian_points_extrema_set.csv")
         .withColumn("extrema_index", u($"extrema_index")), true)
 
       val completeExtremaSet = completeExtremaSetTask.run(

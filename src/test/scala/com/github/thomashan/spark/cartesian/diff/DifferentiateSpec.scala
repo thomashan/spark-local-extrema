@@ -1,6 +1,6 @@
 package com.github.thomashan.spark.cartesian.diff
 
-import com.github.thomashan.spark.{DataFrameUtils, SparkSpec}
+import com.github.thomashan.spark.SparkSpec
 
 class DifferentiateSpec extends SparkSpec {
   var differentiateTask: DifferentiateTask = _
@@ -12,7 +12,7 @@ class DifferentiateSpec extends SparkSpec {
   describe("perform differentiation") {
     it("run should produce correct diff values") {
       val input = loadCsvFile("src/test/resources/data/cartesian_points.csv")
-      val expected = DataFrameUtils.setNullableStateForAllColumns(loadCsvFile("src/test/resources/data/cartesian_points_diff.csv"), false)
+      val expected = loadCsvFile("src/test/resources/data/cartesian_points_diff.csv")
 
       val differentiated = differentiateTask.run(
         Map(
