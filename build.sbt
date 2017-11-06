@@ -8,17 +8,16 @@ scalaVersion := "2.11.11"
 
 resolvers += Resolver.mavenLocal
 
+val sparkVersion = "2.1.0"
+
 libraryDependencies ++= Seq(
-  "org.apache.spark" % "spark-core_2.11" % "2.1.0" % "provided",
-  "org.apache.spark" % "spark-sql_2.11" % "2.1.0" % "provided",
-  "org.apache.spark" % "spark-mllib_2.11" % "2.1.0" % "provided",
-  "org.apache.spark" % "spark-hive_2.11" % "2.1.0" % "provided",
+  "org.apache.spark" % "spark-core_2.11" % sparkVersion % "provided",
+  "org.apache.spark" % "spark-sql_2.11" % sparkVersion % "provided",
+  "org.apache.spark" % "spark-mllib_2.11" % sparkVersion % "provided",
+  "org.apache.spark" % "spark-hive_2.11" % sparkVersion % "provided",
 
-  "com.holdenkarau" %% "spark-testing-base" % "2.1.0_0.7.4" % "test"
+  "com.holdenkarau" %% "spark-testing-base" % s"${sparkVersion}_0.7.4" % "test"
 )
-
-// FIXME: take out when we cut over to spark 2.2.0
-test in assembly := {}
 
 assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
 
