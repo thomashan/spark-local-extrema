@@ -50,23 +50,23 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
         "lowSeriesName" -> lowSeriesName
       )).get
 
-    val completeDataset = input
-      .join(extremaSet, Seq(xAxisName, hiSeriesName, lowSeriesName), "left")
-      .select(xAxisName, hiSeriesName, lowSeriesName, "extrema")
-
-    completeDataset
-      .orderBy(xAxisName)
-      .repartition(200)
-      .write
-      .option("compression", "gzip")
-      //      .option("header", true)
-      .mode("overwrite")
-      .save(outputFile)
-
-    removeUnusedExtremasTask.caches.map(cache => cache.unpersist)
-
     println(extremaSet.count)
+    //    val completeDataset = input
+    //      .join(extremaSet, Seq(xAxisName, hiSeriesName, lowSeriesName), "left")
+    //      .select(xAxisName, hiSeriesName, lowSeriesName, "extrema")
+    //
+    //    completeDataset
+    //      .orderBy(xAxisName)
+    //      .repartition(200)
+    //      .write
+    //      .option("compression", "gzip")
+    //      //      .option("header", true)
+    //      .mode("overwrite")
+    //      .save(outputFile)
+    //
+    //    removeUnusedExtremasTask.caches.map(cache => cache.unpersist)
 
-    Some(completeDataset)
+
+    Some(extremaSet)
   }
 }
