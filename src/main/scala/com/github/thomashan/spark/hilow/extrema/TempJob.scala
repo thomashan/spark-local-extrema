@@ -13,7 +13,7 @@ class TempJob extends SparkJob {
   override protected def run(args: Array[String]): Unit = {
     val hiLow = spark
       .read
-      .load("data/hi_low_big")
+      .load("/data/hi_low_big")
 
     val diffs = hiLow
       .select("x", "hi", "low")
