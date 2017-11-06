@@ -38,6 +38,7 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
       .get
     val candidateExtremaSetDedup = candidateExtremaSet
       .removeDuplicate(xAxisName, hiSeriesName, lowSeriesName)
+      .repartition(200)
 
     val removeUnusedExtremasTask = new RemoveUnusedExtremasTask()
     val extremaSet = removeUnusedExtremasTask
@@ -54,12 +55,12 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
       .select(xAxisName, hiSeriesName, lowSeriesName, "extrema")
 
     completeDataset
-      .coalesce(1)
       .orderBy(xAxisName)
       .write
-      .option("header", true)
+      .option("compression", "gzip")
+      //      .option("header", true)
       .mode("overwrite")
-      .csv(outputFile)
+      .save(outputFile)
 
     removeUnusedExtremasTask.caches.map(cache => cache.unpersist)
 
