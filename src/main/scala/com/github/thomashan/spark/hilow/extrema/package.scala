@@ -166,11 +166,11 @@ package object extrema {
         .join(pass1, Seq(xAxisName, hiSeriesName, lowSeriesName), "left")
         .join(pass2, Seq(xAxisName, hiSeriesName, lowSeriesName), "left")
         .withColumn("extrema", when($"extrema_pass1".isNotNull && $"extrema_pass2".isNotNull, $"extrema_pass1"))
-        .select("x", "hi", "low", "extrema")
+        .select(xAxisName, hiSeriesName, lowSeriesName, "extrema")
         .union(pass1.orderBy(xAxisName).limit(2).select(col(xAxisName), col(hiSeriesName), col(lowSeriesName), $"extrema_pass1").as("extrema"))
         .union(pass2.orderBy(col(xAxisName).desc).limit(2).select(col(xAxisName), col(hiSeriesName), col(lowSeriesName), $"extrema_pass2").as("extrema"))
         .where($"extrema".isNotNull)
-        .orderBy("x")
+        .orderBy(xAxisName)
     }
 
     def removeUnusedExtremasPass1(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
