@@ -11,10 +11,10 @@ The easiest calculation is when the differentiation changes signs.
 * -ve -> +ve
 
 The other cases are
-* +ve -> any number of 0's -> -ve (scenario 1)
-* -ve -> any number of 0's -> +ve (scenario 2)
-* +ve -> any number of 0's -> +ve (scenario 3)
-* -ve -> any number of 0's -> -ve (scenario 4)
+* +ve -> any number of 0's -> -ve
+* -ve -> any number of 0's -> +ve
+* +ve -> any number of 0's -> +ve
+* -ve -> any number of 0's -> -ve
 
 ### Simple cases
 
@@ -81,11 +81,12 @@ The plot of the first 200 points can be seen in
 `images/first_200_points.png`
 ![First 200 points](images/first_200_points.png)
 
-# Complex dataset (high low time series)
-In this section we find the local extremas for more complex dataset like candlestick.
+# Complex dataset (high-low time series)
+In this section we find the local extremas for more complex dataset (e.g. bid/ask time series dataset).
+The extrema can be use to find the exact peaks and troughs of financial dataset (foreign exchange, stock, futures, derivatives, bond, commodities, etc). 
 
 ## Rules
-Simple rules like looking at the diff transitions from +ve -> -ve or -ve -> +ve does not apply to high low time series data.
+Simple rules like looking at the diff transitions from +ve -> -ve or -ve -> +ve does not apply to high-low time series data.
 The low point of the maxima has to be greater than all surrounding highs to be to considered maxima and conversely 
 the highest point of the minima has to be less than all the surrounding lows to be considered minima. 
 
@@ -97,5 +98,81 @@ The easiest calculation is when the differentiation changes signs.
 * +ve -> -ve and low is greater than surrounding lows
 * +ve -> -ve and low is greater than surrounding highs
 
-# Time series quotes
-## FIXME: put quotes in here 
+## Test dataset
+Test data is available in csv format in
+`src/test/resources/data/hi_low.csv`
+It contains 1000 rows of high-low time series data.
+
+| x     | hi      | low     |
+| ----- | ------- | ------- |
+| 0.0   | 1.13776 | 1.13761 |
+| 1.0   | 1.13778 | 1.13764 |
+| 2.0   | 1.13775 | 1.1376  |
+| 3.0   | 1.13778 | 1.13762 |
+| 4.0   | 1.13794 | 1.13779 |
+| 5.0   | 1.13796 | 1.13781 |
+| 6.0   | 1.13799 | 1.13784 |
+| 7.0   | 1.13793 | 1.13776 |
+| 8.0   | 1.13792 | 1.13777 |
+| 9.0   | 1.13795 | 1.13779 |
+| ...   | ...     | ...     |
+
+The plot of the test data is be seen in `images/high_low_time_series.png`
+![high-low time series plot](images/high_low_time_series.png)
+
+# High-low extremas
+
+## Candidate extremas
+To find the extremas in high-low time series data the first step is to differentiate hi-low point to find the extrema candidates.
+The high point can only be extrema for the minimum (trough) and the low point can only be extrema for the maxima (peak).
+
+We filter out differentiated value of 0 and find all the cross overs where the differentiated value goes from +ve -> -ve or -ve -> +ve.
+
+The candidate extremas can be seen in the plot below.
+`images/high_low_candidate_extremas.png`
+![high-low candidate extremas](images/high_low_candidate_extremas.png)
+
+## Remove duplicate extremas
+You will notice the duplicate extremas occurring such as x=23.0 and x=26.0 in `src/test/resources/data/hi_low_candidate_extrema_set.csv`.
+We need to get rid of the duplicate set and reduce it down to a single value.
+The following rules apply for reducing the duplicate extrema to a single value.
+* minima: reduce duplicates to a single lowest high value
+* maxima: reduce duplicates to a single highest low value
+
+The candidate extremas with extrema deduplicated can be seen in the plot below.
+`images/high_low_candidate_extremas_deduplicated.png`
+![high-low candidate extremas deduplicated](images/high_low_candidate_extremas_deduplicated.png)
+
+## Remove false candidate extremas
+The next step is to remove false candidate extremas. 
+This is a two phase process. After removing the duplicate extremas it will always form a sequence of extrema that will alternate (i.e maxima -> minima -> maxima -> minima -> ...).
+
+For given sequence of extremas - minima (min0) -> maxima (max0) -> minima (min1), the following rules apply
+* if min0_high < max0_low and min1_high < max0_low keep min0 
+* else if min0_high > min1_high discard min0
+* else keep min0
+
+The second phase is
+* if min0_high < max0_low and min1_high < max0_low keep min1 
+* else if min1_high > min0_high discard min1
+* else keep min1
+
+And conversely for sequence of extremas - maxima (max0) -> minima (min0) -> maxima (max1)
+* if max0_low > min0_high and max1_high < min0_high keep max0 
+* else if max0_low < max1_low discard max0
+* else keep max0
+
+The second phase
+* if max0_low > min0_high and max1_high < min0_high keep max1 
+* else if max1_low < max0_low discard max1
+* else keep max1
+
+Remove the duplicate extrema as describe in previous section.
+
+This process is repeated until we can't remove and more points.
+
+*Pass 1*
+![high-low candidate extremas pass1](images/high_low_candidate_extremas_pass1.png)
+
+*Pass 2 (final pass)*
+![high-low candidate extremas pass2](images/high_low_candidate_extremas_pass2.png)
