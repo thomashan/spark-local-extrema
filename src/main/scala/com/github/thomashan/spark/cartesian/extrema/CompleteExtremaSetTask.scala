@@ -22,8 +22,6 @@ class CompleteExtremaSetTask(implicit val spark: SparkSession) extends SparkTask
       .withColumn("start_of_flat_x", last("null_out_x", true).over(Window.orderBy(xAxisName).rowsBetween(unboundedPreceding, currentRow)))
       .cache
 
-    addToCache(startOfFlats)
-
     Some(
       startOfFlats
         .allExtrema(xAxisName, yAxisName)

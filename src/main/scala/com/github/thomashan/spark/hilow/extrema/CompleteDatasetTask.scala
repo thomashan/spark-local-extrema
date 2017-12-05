@@ -61,8 +61,6 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
       .mode("overwrite")
       .csv(outputFile)
 
-    removeUnusedExtremaTask.caches.map(cache => cache.unpersist)
-
     Some(extremaSet)
   }
 }

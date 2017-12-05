@@ -56,7 +56,6 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
 
     input.unpersist
     diff.unpersist
-    completeExtremaSetTask.caches.map(cache => cache.unpersist)
 
     Some(completeDataset)
   }
