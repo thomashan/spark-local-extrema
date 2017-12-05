@@ -1,6 +1,7 @@
 # spark-local-extrema
 Algorithm to that find local extrema using spark.
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b8be80f9d8004dc3a6461adc0f602c05)](https://www.codacy.com/app/thomashan/spark-local-extrema?utm_source=github.com&utm_medium=referral&utm_content=thomashan/spark-local-extrema&utm_campaign=badger)
 [![Build Status](https://travis-ci.org/thomashan/spark-local-extrema.svg?branch=master)](https://travis-ci.org/thomashan/spark-local-extrema)
 
 # Simple cartesian points
