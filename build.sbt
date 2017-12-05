@@ -8,7 +8,7 @@ scalaVersion := "2.11.11"
 
 resolvers += Resolver.mavenLocal
 
-val sparkVersion = "2.1.0"
+val sparkVersion = "2.2.0"
 
 libraryDependencies ++= Seq(
   "org.apache.spark" % "spark-core_2.11" % sparkVersion % "provided",
