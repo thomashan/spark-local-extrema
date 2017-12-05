@@ -41,11 +41,11 @@ package object extrema {
           val lowDiff1 = element1.getDouble(4)
 
           val extrema = if (lowDiff0 > 0 && lowDiff1 < 0) {
-            "maxima"
+            Some("maxima")
           } else if (hiDiff0 < 0 && hiDiff1 > 0) {
-            "minima"
+            Some("minima")
           } else {
-            null
+            None
           }
 
           (x0, hi, low, extrema)
@@ -198,19 +198,19 @@ package object extrema {
 
           val extrema = if (currentExtrema == "maxima") {
             if (currentLow > element1Hi && element1Hi < element2Low) {
-              currentExtrema
+              Some(currentExtrema)
             } else if (currentLow < element2Low) {
-              null
+              None
             } else {
-              currentExtrema
+              Some(currentExtrema)
             }
           } else {
             if (currentHi < element1Low && element1Low > element2Hi) {
-              currentExtrema
+              Some(currentExtrema)
             } else if (currentHi > element2Hi) {
-              null
+              None
             } else {
-              currentExtrema
+              Some(currentExtrema)
             }
           }
 
@@ -246,19 +246,19 @@ package object extrema {
 
           val extrema = if (currentExtrema == "maxima") {
             if (element0Low > element1Hi && element1Hi < currentLow) {
-              currentExtrema
+              Some(currentExtrema)
             } else if (element0Low < currentLow) {
-              currentExtrema
+              Some(currentExtrema)
             } else {
-              null
+              None
             }
           } else {
             if (element0Hi < element1Low && element1Low > currentHi) {
-              currentExtrema
+              Some(currentExtrema)
             } else if (element0Hi > currentHi) {
-              currentExtrema
+              Some(currentExtrema)
             } else {
-              null
+              None
             }
           }
 
