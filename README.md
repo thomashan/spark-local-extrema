@@ -73,7 +73,7 @@ You can run the extrema against this dataset by running
 > docker run --rm -it -p 4040:4040 \
 -v $(pwd)/examples:/data \
 -v $(pwd)/target/scala-2.11/spark-local-extrema-assembly-0.1-SNAPSHOT.jar:/job.jar \
-gettyimages/spark bin/spark-submit \
+gettyimages/spark:2.2.0-hadoop-2.7 bin/spark-submit \
 --master local[*] \
 --driver-memory 2g \
 --class com.github.thomashan.spark.cartesian.extrema.CompleteDatasetJob /job.jar \
