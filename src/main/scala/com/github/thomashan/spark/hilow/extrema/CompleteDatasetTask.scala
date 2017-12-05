@@ -54,11 +54,12 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
       .select(xAxisName, hiSeriesName, lowSeriesName, "extrema")
 
     completeDataset
+      .coalesce(1)
       .orderBy(xAxisName)
       .write
-      .option("compression", "gzip")
+      .option("header", true)
       .mode("overwrite")
-      .save(outputFile)
+      .csv(outputFile)
 
     removeUnusedExtremaTask.caches.map(cache => cache.unpersist)
 
