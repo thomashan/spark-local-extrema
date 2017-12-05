@@ -1,0 +1,21 @@
+language: scala
+
+jdk:
+   - oraclejdk8
+scala:
+   - 2.11.11
+
+script:
+  - sbt clean coverage test coverageReport &&
+    sbt coverageAggregate
+  - sonar-scanner
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+  - sbt coveralls
+  - sbt codacyCoverage
+
+addons:
+  sonarqube:
+    organization: "thomashan-github"
+    branches:
+      - master

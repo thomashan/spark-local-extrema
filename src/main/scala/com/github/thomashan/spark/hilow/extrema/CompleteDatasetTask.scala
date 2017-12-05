@@ -39,10 +39,10 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
     val candidateExtremaSetDedup = candidateExtremaSet
       .removeDuplicate(xAxisName, hiSeriesName, lowSeriesName)
 
-    val removeUnusedExtremasTask = new RemoveUnusedExtremasTask()
-    val extremaSet = removeUnusedExtremasTask
+    val removeUnusedExtremaTask = new RemoveUnusedExtremaTask()
+    val extremaSet = removeUnusedExtremaTask
       .run(Map(
-        "extremas_deduped" -> candidateExtremaSetDedup,
+        "extrema_deduped" -> candidateExtremaSetDedup,
         "xAxisName" -> xAxisName,
         "hiSeriesName" -> hiSeriesName,
         "lowSeriesName" -> lowSeriesName
@@ -60,7 +60,7 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
       .mode("overwrite")
       .save(outputFile)
 
-    removeUnusedExtremasTask.caches.map(cache => cache.unpersist)
+    removeUnusedExtremaTask.caches.map(cache => cache.unpersist)
 
     Some(extremaSet)
   }

@@ -1,5 +1,7 @@
 # spark-local-extrema
-Algorithm to that find local extremas using spark
+Algorithm to that find local extrema using spark.
+
+[![Build Status](https://travis-ci.org/thomashan/spark-local-extrema.svg?branch=master)](https://travis-ci.org/thomashan/spark-local-extrema)
 
 # Simple cartesian points
 ## Assumption
@@ -50,7 +52,7 @@ You can see the line chart in
 `images/cartesian_points_line_chart.png`
 ![Cartesian points line chart](images/cartesian_points_line_chart.png)
 
-You can see there are local extremas in the following points
+You can see there are local extrema in the following points
 * (1, 1), (1.5, 1) maxima
 * (2.5, 0), (3, 0), (3.5, 0) minima
 * (4, 0.5) maxima
@@ -72,17 +74,17 @@ gettyimages/spark bin/spark-submit \
 --master local[*] \
 --driver-memory 2g \
 --class com.github.thomashan.spark.cartesian.extrema.CompleteDatasetJob /job.jar \
-/data/random.csv true x y /data/random_extremas
+/data/random.csv true x y /data/random_extrema
 ```
 
-This will create directory named `examples/random_extremas` which contains the csv file of the extremas.
+This will create directory named `examples/random_extrema` which contains the csv file of the extrema.
 
 The plot of the first 200 points can be seen in 
 `images/first_200_points.png`
 ![First 200 points](images/first_200_points.png)
 
 # Complex dataset (high-low time series)
-In this section we find the local extremas for more complex dataset (e.g. bid/ask time series dataset).
+In this section we find the local extrema for more complex dataset (e.g. bid/ask time series dataset).
 The extrema can be use to find the exact peaks and troughs of financial dataset (foreign exchange, stock, futures, derivatives, bond, commodities, etc). 
 
 ## Rules
@@ -120,34 +122,34 @@ It contains 1000 rows of high-low time series data.
 The plot of the test data is be seen in `images/high_low_time_series.png`
 ![high-low time series plot](images/high_low_time_series.png)
 
-# High-low extremas
+# High-low extrema
 
-## Candidate extremas
-To find the extremas in high-low time series data the first step is to differentiate hi-low point to find the extrema candidates.
+## Candidate extrema
+To find the extrema in high-low time series data the first step is to differentiate hi-low point to find the extrema candidates.
 The high point can only be extrema for the minimum (trough) and the low point can only be extrema for the maxima (peak).
 
 We filter out differentiated value of 0 and find all the cross overs where the differentiated value goes from +ve -> -ve or -ve -> +ve.
 
-The candidate extremas can be seen in the plot below.
-`images/high_low_candidate_extremas.png`
-![high-low candidate extremas](images/high_low_candidate_extremas.png)
+The candidate extrema can be seen in the plot below.
+`images/high_low_candidate_extrema.png`
+![high-low candidate extrema](images/high_low_candidate_extrema.png)
 
-## Remove duplicate extremas
-You will notice the duplicate extremas occurring such as x=23.0 and x=26.0 in `src/test/resources/data/hi_low_candidate_extrema_set.csv`.
+## Remove duplicate extrema
+You will notice the duplicate extrema occurring such as x=23.0 and x=26.0 in `src/test/resources/data/hi_low_candidate_extrema_set.csv`.
 We need to get rid of the duplicate set and reduce it down to a single value.
 The following rules apply for reducing the duplicate extrema to a single value.
 * minima: reduce duplicates to a single lowest high value
 * maxima: reduce duplicates to a single highest low value
 
-The candidate extremas with extrema deduplicated can be seen in the plot below.
-`images/high_low_candidate_extremas_deduplicated.png`
-![high-low candidate extremas deduplicated](images/high_low_candidate_extremas_deduplicated.png)
+The candidate extrema with extrema deduplicated can be seen in the plot below.
+`images/high_low_candidate_extrema_deduplicated.png`
+![high-low candidate extrema deduplicated](images/high_low_candidate_extrema_deduplicated.png)
 
-## Remove false candidate extremas
-The next step is to remove false candidate extremas. 
-This is a two phase process. After removing the duplicate extremas it will always form a sequence of extrema that will alternate (i.e maxima -> minima -> maxima -> minima -> ...).
+## Remove false candidate extrema
+The next step is to remove false candidate extrema. 
+This is a two phase process. After removing the duplicate extrema it will always form a sequence of extrema that will alternate (i.e maxima -> minima -> maxima -> minima -> ...).
 
-For given sequence of extremas - minima (min0) -> maxima (max0) -> minima (min1), the following rules apply
+For given sequence of extrema - minima (min0) -> maxima (max0) -> minima (min1), the following rules apply
 * if min0_high < max0_low and min1_high < max0_low keep min0 
 * else if min0_high > min1_high discard min0
 * else keep min0
@@ -157,7 +159,7 @@ The second phase is
 * else if min1_high > min0_high discard min1
 * else keep min1
 
-And conversely for sequence of extremas - maxima (max0) -> minima (min0) -> maxima (max1)
+And conversely for sequence of extrema - maxima (max0) -> minima (min0) -> maxima (max1)
 * if max0_low > min0_high and max1_high < min0_high keep max0 
 * else if max0_low < max1_low discard max0
 * else keep max0
@@ -172,7 +174,7 @@ Remove the duplicate extrema as describe in previous section.
 This process is repeated until we can't remove and more points.
 
 *Pass 1*
-![high-low candidate extremas pass1](images/high_low_candidate_extremas_pass1.png)
+![high-low candidate extrema pass1](images/high_low_candidate_extrema_pass1.png)
 
 *Pass 2 (final pass)*
-![high-low candidate extremas pass2](images/high_low_candidate_extremas_pass2.png)
+![high-low candidate extrema pass2](images/high_low_candidate_extrema_pass2.png)

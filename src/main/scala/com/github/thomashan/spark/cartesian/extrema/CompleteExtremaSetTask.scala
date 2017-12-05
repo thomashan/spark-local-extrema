@@ -26,7 +26,7 @@ class CompleteExtremaSetTask(implicit val spark: SparkSession) extends SparkTask
 
     Some(
       startOfFlats
-        .allExtremas(xAxisName, yAxisName)
+        .allExtrema(xAxisName, yAxisName)
     )
   }
 }

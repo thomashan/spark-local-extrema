@@ -13,16 +13,16 @@ class CandidateExtremaSetTaskSpec extends SparkSpec {
   }
 
   describe("implementation details") {
-    it("findCandidateExtremas should find all candidate extremas") {
+    it("findCandidateExtrema should find all candidate extrema") {
       val input = loadCsv("src/test/resources/data/hi_low_diff.csv")
       val expected = loadCsv("src/test/resources/data/hi_low_candidate_extrema_set.csv")
 
-      val result = input.findCandidateExtremas("x", "hi", "low")
+      val result = input.findCandidateExtrema("x", "hi", "low")
 
       assertDataFrameEquals(expected, result)
     }
 
-    it("removeDuplicate should remove unused extremas") {
+    it("removeDuplicate should remove unused extrema") {
       val input = loadCsv("src/test/resources/data/hi_low_candidate_extrema_set.csv")
       val expected = loadCsv("src/test/resources/data/hi_low_candidate_extrema_set_deduplicated.csv")
 

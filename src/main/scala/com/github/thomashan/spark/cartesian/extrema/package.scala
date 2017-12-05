@@ -58,7 +58,7 @@ package object extrema {
         .toDF(xAxisName, yAxisName, "diff", "extrema", "extrema_index")
     }
 
-    def allExtremas(xAxisName: String, yAxisName: String): DataFrame = {
+    def allExtrema(xAxisName: String, yAxisName: String): DataFrame = {
       val zeroDiffAreas = dataFrame
         .groupBy("start_of_flat_x")
         .agg(

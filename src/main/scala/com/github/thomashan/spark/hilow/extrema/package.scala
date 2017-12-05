@@ -11,13 +11,13 @@ package object extrema {
 
     import dataFrame.sqlContext.implicits._
 
-    def join(xAxisName: String, extremas: DataFrame): DataFrame = {
+    def join(xAxisName: String, extrema: DataFrame): DataFrame = {
       dataFrame
-        .join(extremas, Seq(xAxisName), "left")
+        .join(extrema, Seq(xAxisName), "left")
         .orderBy(xAxisName)
     }
 
-    def findCandidateExtremas(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
+    def findCandidateExtrema(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
       // FIXME: pull out logic for constructing hi series diff
       val hiSeriesDiff = "diff_" + hiSeriesName
       val lowSeriesDiff = "diff_" + lowSeriesName
@@ -158,9 +158,9 @@ package object extrema {
 
     }
 
-    def removeUnusedExtremas(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
-      val pass1 = dataFrame.removeUnusedExtremasPass1(xAxisName, hiSeriesName, lowSeriesName)
-      val pass2 = dataFrame.removeUnusedExtremasPass2(xAxisName, hiSeriesName, lowSeriesName)
+    def removeUnusedExtrema(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
+      val pass1 = dataFrame.removeUnusedExtremaPass1(xAxisName, hiSeriesName, lowSeriesName)
+      val pass2 = dataFrame.removeUnusedExtremaPass2(xAxisName, hiSeriesName, lowSeriesName)
 
       dataFrame
         .join(pass1, Seq(xAxisName, hiSeriesName, lowSeriesName), "left")
@@ -173,7 +173,7 @@ package object extrema {
         .orderBy(xAxisName)
     }
 
-    def removeUnusedExtremasPass1(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
+    def removeUnusedExtremaPass1(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
       // FIXME: cache dataFrame!
 
       dataFrame
@@ -221,7 +221,7 @@ package object extrema {
         .orderBy(xAxisName)
     }
 
-    def removeUnusedExtremasPass2(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
+    def removeUnusedExtremaPass2(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
       // FIXME: cache dataFrame!
 
       dataFrame

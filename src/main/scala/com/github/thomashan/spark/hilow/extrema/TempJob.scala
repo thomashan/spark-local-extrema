@@ -41,7 +41,7 @@ class TempJob extends SparkJob {
       .join(diffs, Seq("x", "hi", "low"), "left")
       .orderBy("x")
 
-    val candidateExtremas = hiLowDiff
+    val candidateExtrema = hiLowDiff
       .select("x", "hi", "low", "diff_hi", "diff_low")
       .where($"diff_hi" =!= 0 || $"diff_low" =!= 0)
       .rdd
@@ -71,7 +71,7 @@ class TempJob extends SparkJob {
       .where($"extrema".isNotNull)
       .orderBy("x")
 
-    val extremasDuplicateRemoved = candidateExtremas
+    val extremaDuplicateRemoved = candidateExtrema
       .withColumn("extrema_value", when($"extrema" === "maxima", $"low").otherwise($"hi"))
       .withColumn("previous_extrema", lag($"extrema", 1).over(Window.orderBy($"x")))
       .withColumn("increment", when($"extrema" =!= $"previous_extrema", 1).otherwise(0))
@@ -84,7 +84,7 @@ class TempJob extends SparkJob {
       .select("x", "hi", "low", "extrema")
       .where($"row_in_partition" === 1)
 
-    println(extremasDuplicateRemoved.count)
+    println(extremaDuplicateRemoved.count)
   }
 }
 

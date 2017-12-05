@@ -13,7 +13,7 @@ class CandidateExtremaSetTask(implicit val spark: SparkSession) extends SparkTas
 
     Some(
       diff
-        .findCandidateExtremas(xAxisName, hiSeriesName, lowSeriesName)
+        .findCandidateExtrema(xAxisName, hiSeriesName, lowSeriesName)
         .orderBy(xAxisName)
     )
   }

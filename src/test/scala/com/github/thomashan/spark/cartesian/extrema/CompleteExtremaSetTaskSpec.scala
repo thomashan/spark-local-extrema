@@ -16,7 +16,7 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
   }
 
   describe("implementation details") {
-    it("allExtremas should return all extrema points simple scenario 1") {
+    it("allExtrema should return all extrema points simple scenario 1") {
       val input = prepareInputDataset(
         (0, 0, null, null, null),
         (1, 1, 1.0, "maxima", 0l),
@@ -28,12 +28,12 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
         (2, -1, "minima", 1l)
       )
 
-      val result = input.allExtremas("x", "y")
+      val result = input.allExtrema("x", "y")
 
       assertDataFrameEquals(expected, result)
     }
 
-    it("allExtremas should return all extrema points simple scenario 2") {
+    it("allExtrema should return all extrema points simple scenario 2") {
       val input = prepareInputDataset(
         (0, 0, null, null, null),
         (1, -1, -1.0, "minima", 0l),
@@ -45,12 +45,12 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
         (2, 1, "maxima", 1l)
       )
 
-      val result = input.allExtremas("x", "y")
+      val result = input.allExtrema("x", "y")
 
       assertDataFrameEquals(expected, result)
     }
 
-    it("allExtremas should return all extrema points complex scenario 1") {
+    it("allExtrema should return all extrema points complex scenario 1") {
       val input = prepareInputDataset(
         (1, 0, null, null, null),
         (2, 1, 1.0, "maxima", 0l),
@@ -66,12 +66,12 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
         (5, 1, "maxima", 0l)
       )
 
-      val result = input.allExtremas("x", "y")
+      val result = input.allExtrema("x", "y")
 
       assertDataFrameEquals(expected, result)
     }
 
-    it("allExtremas should return all extrema points complex scenario 2") {
+    it("allExtrema should return all extrema points complex scenario 2") {
       val input = prepareInputDataset(
         (1, 0, null, null, null),
         (2, 1, -1.0, "minima", 0l),
@@ -87,12 +87,12 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
         (5, 1, "minima", 0l)
       )
 
-      val result = input.allExtremas("x", "y")
+      val result = input.allExtrema("x", "y")
 
       assertDataFrameEquals(expected, result)
     }
 
-    it("allExtremas should return all extrema points complex scenario 3") {
+    it("allExtrema should return all extrema points complex scenario 3") {
       val input = prepareInputDataset(
         (0, 0, null, null, null),
         (1, 1, 1.0, "maxima", 0l),
@@ -109,12 +109,12 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
         (6, 1, "maxima", 2l)
       )
 
-      val result = input.allExtremas("x", "y")
+      val result = input.allExtrema("x", "y")
 
       assertDataFrameEquals(expected, result)
     }
 
-    it("allExtremas should return all extrema points complex scenario 4") {
+    it("allExtrema should return all extrema points complex scenario 4") {
       val input = prepareInputDataset(
         (0, 0, null, null, null),
         (1, -1, -1.0, "maxima", 0l),
@@ -131,12 +131,12 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
         (6, -1, "maxima", 2l)
       )
 
-      val result = input.allExtremas("x", "y")
+      val result = input.allExtrema("x", "y")
 
       assertDataFrameEquals(expected, result)
     }
 
-    it("allExtremas should return all extrema points") {
+    it("allExtrema should return all extrema points") {
       val input = prepareInputDataset(
         (0.5, 0.5, 1d, null, null),
         (1d, 1d, 1d, "maxima", java.lang.Long.valueOf(0)),
@@ -160,7 +160,7 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
         (4d, 0.5, "maxima", java.lang.Long.valueOf(2))
       )
 
-      val result = input.allExtremas("x", "y")
+      val result = input.allExtrema("x", "y")
 
       assertDataFrameEquals(expected, result)
     }
