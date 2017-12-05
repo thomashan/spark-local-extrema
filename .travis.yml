@@ -8,7 +8,7 @@ scala:
 script:
   - sbt clean coverage test coverageReport &&
     sbt coverageAggregate
-  - sonar-scanner
+#  - sonar-scanner
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   - sbt coveralls
