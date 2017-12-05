@@ -67,17 +67,29 @@ An example dataset is available in
 `examples/random.csv`
 To read more about how we got this data please read [examples/README.md](examples/README.md)
 
+The parameters to the job are
+```bash
+> docker run --rm -it -p 4040:4040 \
+  -v $(pwd)/examples:/data \
+  -v $(pwd)/target/scala-2.11/spark-local-extrema-assembly-0.1-SNAPSHOT.jar:/job.jar \
+  gettyimages/spark:2.2.0-hadoop-2.7 bin/spark-submit \
+  --master local[*] \
+  --driver-memory 2g \
+  --class com.github.thomashan.spark.cartesian.extrema.CompleteDatasetJob /job.jar \
+  [INPUT_FILE] [HEADER] [X_AXIS_NAME] [Y_AXIS_NAME] [OUTPUT_FILE]
+```
+
 You can run the extrema against this dataset by running
 ```bash
 > sbt assembly
 > docker run --rm -it -p 4040:4040 \
--v $(pwd)/examples:/data \
--v $(pwd)/target/scala-2.11/spark-local-extrema-assembly-0.1-SNAPSHOT.jar:/job.jar \
-gettyimages/spark:2.2.0-hadoop-2.7 bin/spark-submit \
---master local[*] \
---driver-memory 2g \
---class com.github.thomashan.spark.cartesian.extrema.CompleteDatasetJob /job.jar \
-/data/random.csv true x y /data/random_extrema
+  -v $(pwd)/examples:/data \
+  -v $(pwd)/target/scala-2.11/spark-local-extrema-assembly-0.1-SNAPSHOT.jar:/job.jar \
+  gettyimages/spark:2.2.0-hadoop-2.7 bin/spark-submit \
+  --master local[*] \
+  --driver-memory 2g \
+  --class com.github.thomashan.spark.cartesian.extrema.CompleteDatasetJob /job.jar \
+  /data/random.csv true x y /data/output/random_extrema
 ```
 
 This will create directory named `examples/random_extrema` which contains the csv file of the extrema.
@@ -181,3 +193,29 @@ This process is repeated until we can't remove and more points.
 
 *Pass 2 (final pass)*
 ![high-low candidate extrema pass2](images/high_low_candidate_extrema_pass2.png)
+
+# Run the example
+The parameters to the job are
+```bash
+> docker run --rm -it -p 4040:4040 \
+  -v $(pwd)/examples:/data \
+  -v $(pwd)/target/scala-2.11/spark-local-extrema-assembly-0.1-SNAPSHOT.jar:/job.jar \
+  gettyimages/spark:2.2.0-hadoop-2.7 bin/spark-submit \
+  --master local[*] \
+  --driver-memory 2g \
+  --class com.github.thomashan.spark.hilow.extrema.CompleteDatasetJob /job.jar \
+  [INPUT_FILE] [HEADER] [X_AXIS_NAME] [HI_SERIES_NAME] [LOW_SERIES_NAME] [OUTPUT_FILE]
+```
+
+
+```bash
+> sbt assembly
+> docker run --rm -it -p 4040:4040 \
+  -v $(pwd)/examples:/data \
+  -v $(pwd)/target/scala-2.11/spark-local-extrema-assembly-0.1-SNAPSHOT.jar:/job.jar \
+  gettyimages/spark:2.2.0-hadoop-2.7 bin/spark-submit \
+  --master local[*] \
+  --driver-memory 2g \
+  --class com.github.thomashan.spark.hilow.extrema.CompleteDatasetJob /job.jar \
+  /data/hi_low.csv true x hi low /data/output/hi_low_extrema
+```

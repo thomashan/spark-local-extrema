@@ -5,7 +5,11 @@ import com.github.thomashan.spark.SparkJob
 // docker run --rm -it -p 4040:4040 \
 // -v $(pwd)/examples:/data \
 // -v $(pwd)/target/scala-2.11/spark-local-extrema-assembly-0.1-SNAPSHOT.jar:/job.jar \
-// gettyimages/spark bin/spark-submit --master local[*] --driver-memory 2g --class com.github.thomashan.spark.cartesian.extrema.CompleteDatasetJob /job.jar /data/random_cartesian.csv true x y /data/random_extrema
+// gettyimages/spark:2.2.0-hadoop-2.7 bin/spark-submit \
+// --master local[*] \
+// --driver-memory 2g \
+// --class com.github.thomashan.spark.cartesian.extrema.CompleteDatasetJob /job.jar \
+// /data/random.csv true x y /data/output/random_extrema
 class CompleteDatasetJob extends SparkJob {
   override val applicationName: String = getClass.getName
 
