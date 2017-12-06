@@ -5,27 +5,31 @@ import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.expressions.Window.{currentRow, unboundedPreceding}
 import org.apache.spark.sql.functions._
+import org.scalatest.{Outcome, fixture}
 
-class CompleteExtremaSetTaskSpec extends SparkSpec {
-  var completeExtremaSetTask: CompleteExtremaSetTask = _
+class CompleteExtremaSetTaskSpec extends fixture.FunSpec with SparkSpec {
+  type FixtureParam = CompleteExtremaSetTask
+
+
+  override def withFixture(test: OneArgTest): Outcome = {
+    val completeExtremaSetTask = new CompleteExtremaSetTask()
+    test(completeExtremaSetTask)
+  }
 
   import spark.implicits._
 
-  before {
-    completeExtremaSetTask = new CompleteExtremaSetTask()
-  }
-
   describe("implementation details") {
-    it("allExtrema should return all extrema points simple scenario 1") {
+    // FIXME: pull out tests that test package method
+    it("allExtrema should return all extrema points simple scenario 1") { completeExtremaSetTask =>
       val input = prepareInputDataset(
-        (0, 0, null, null, null),
-        (1, 1, 1.0, "maxima", 0l),
-        (2, -1, -2.0, "minima", 1l),
-        (3, 0, 1.0, null, null)
+        (Some(0), Some(0), None, None, None),
+        (Some(1), Some(1), Some(1.0), Some("maxima"), Some(0l)),
+        (Some(2), Some(-1), Some(-2.0), Some("minima"), Some(1l)),
+        (Some(3), Some(0), Some(1.0), None, None)
       )
       val expected = prepareOutputDataset(
-        (1, 1, "maxima", 0l),
-        (2, -1, "minima", 1l)
+        (Some(1), Some(1), Some("maxima"), Some(0l)),
+        (Some(2), Some(-1), Some("minima"), Some(1l))
       )
 
       val result = input.allExtrema("x", "y")
@@ -33,16 +37,17 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
       assertDataFrameEquals(expected, result)
     }
 
-    it("allExtrema should return all extrema points simple scenario 2") {
+    // FIXME: pull out tests that test package method
+    it("allExtrema should return all extrema points simple scenario 2") { completeExtremaSetTask =>
       val input = prepareInputDataset(
-        (0, 0, null, null, null),
-        (1, -1, -1.0, "minima", 0l),
-        (2, 1, 2.0, "maxima", 1l),
-        (3, 0, -1.0, null, null)
+        (Some(0), Some(0), None, None, None),
+        (Some(1), Some(-1), Some(-1.0), Some("minima"), Some(0l)),
+        (Some(2), Some(1), Some(2.0), Some("maxima"), Some(1l)),
+        (Some(3), Some(0), Some(-1.0), None, None)
       )
       val expected = prepareOutputDataset(
-        (1, -1, "minima", 0l),
-        (2, 1, "maxima", 1l)
+        (Some(1), Some(-1), Some("minima"), Some(0l)),
+        (Some(2), Some(1), Some("maxima"), Some(1l))
       )
 
       val result = input.allExtrema("x", "y")
@@ -50,20 +55,21 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
       assertDataFrameEquals(expected, result)
     }
 
-    it("allExtrema should return all extrema points complex scenario 1") {
+    // FIXME: pull out tests that test package method
+    it("allExtrema should return all extrema points complex scenario 1") { completeExtremaSetTask =>
       val input = prepareInputDataset(
-        (1, 0, null, null, null),
-        (2, 1, 1.0, "maxima", 0l),
-        (3, 1, 0.0, "maxima", 0l),
-        (4, 1, 0.0, "maxima", 0l),
-        (5, 1, 0.0, "maxima", 0l),
-        (6, 0, -1.0, null, null)
+        (Some(1), Some(0), None, None, None),
+        (Some(2), Some(1), Some(1.0), Some("maxima"), Some(0l)),
+        (Some(3), Some(1), Some(0.0), Some("maxima"), Some(0l)),
+        (Some(4), Some(1), Some(0.0), Some("maxima"), Some(0l)),
+        (Some(5), Some(1), Some(0.0), Some("maxima"), Some(0l)),
+        (Some(6), Some(0), Some(-1.0), None, None)
       )
       val expected = prepareOutputDataset(
-        (2, 1, "maxima", 0l),
-        (3, 1, "maxima", 0l),
-        (4, 1, "maxima", 0l),
-        (5, 1, "maxima", 0l)
+        (Some(2), Some(1), Some("maxima"), Some(0l)),
+        (Some(3), Some(1), Some("maxima"), Some(0l)),
+        (Some(4), Some(1), Some("maxima"), Some(0l)),
+        (Some(5), Some(1), Some("maxima"), Some(0l))
       )
 
       val result = input.allExtrema("x", "y")
@@ -71,20 +77,21 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
       assertDataFrameEquals(expected, result)
     }
 
-    it("allExtrema should return all extrema points complex scenario 2") {
+    // FIXME: pull out tests that test package method
+    it("allExtrema should return all extrema points complex scenario 2") { completeExtremaSetTask =>
       val input = prepareInputDataset(
-        (1, 0, null, null, null),
-        (2, 1, -1.0, "minima", 0l),
-        (3, 1, 0.0, "minima", 0l),
-        (4, 1, 0.0, "minima", 0l),
-        (5, 1, 0.0, "minima", 0l),
-        (6, 0, 1.0, null, null)
+        (Some(1), Some(0), None, None, None),
+        (Some(2), Some(1), Some(-1.0), Some("minima"), Some(0l)),
+        (Some(3), Some(1), Some(0.0), Some("minima"), Some(0l)),
+        (Some(4), Some(1), Some(0.0), Some("minima"), Some(0l)),
+        (Some(5), Some(1), Some(0.0), Some("minima"), Some(0l)),
+        (Some(6), Some(0), Some(1.0), None, None)
       )
       val expected = prepareOutputDataset(
-        (2, 1, "minima", 0l),
-        (3, 1, "minima", 0l),
-        (4, 1, "minima", 0l),
-        (5, 1, "minima", 0l)
+        (Some(2), Some(1), Some("minima"), Some(0l)),
+        (Some(3), Some(1), Some("minima"), Some(0l)),
+        (Some(4), Some(1), Some("minima"), Some(0l)),
+        (Some(5), Some(1), Some("minima"), Some(0l))
       )
 
       val result = input.allExtrema("x", "y")
@@ -92,21 +99,22 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
       assertDataFrameEquals(expected, result)
     }
 
-    it("allExtrema should return all extrema points complex scenario 3") {
+    // FIXME: pull out tests that test package method
+    it("allExtrema should return all extrema points complex scenario 3") { completeExtremaSetTask =>
       val input = prepareInputDataset(
-        (0, 0, null, null, null),
-        (1, 1, 1.0, "maxima", 0l),
-        (2, 0, -1.0, "minima", 1l),
-        (3, 0.5, 0.5, null, null),
-        (4, 0.5, 0.0, null, null),
-        (5, 0.5, 0.0, null, null),
-        (6, 1, 0.5, "maxima", 2l),
-        (7, 0, -1.0, null, null)
+        (Some(0), Some(0), None, None, None),
+        (Some(1), Some(1), Some(1.0), Some("maxima"), Some(0l)),
+        (Some(2), Some(0), Some(-1.0), Some("minima"), Some(1l)),
+        (Some(3), Some(0.5), Some(0.5), None, None),
+        (Some(4), Some(0.5), Some(0.0), None, None),
+        (Some(5), Some(0.5), Some(0.0), None, None),
+        (Some(6), Some(1), Some(0.5), Some("maxima"), Some(2l)),
+        (Some(7), Some(0), Some(-1.0), None, None)
       )
       val expected = prepareOutputDataset(
-        (1, 1, "maxima", 0l),
-        (2, 0, "minima", 1l),
-        (6, 1, "maxima", 2l)
+        (Some(1), Some(1), Some("maxima"), Some(0l)),
+        (Some(2), Some(0), Some("minima"), Some(1l)),
+        (Some(6), Some(1), Some("maxima"), Some(2l))
       )
 
       val result = input.allExtrema("x", "y")
@@ -114,21 +122,22 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
       assertDataFrameEquals(expected, result)
     }
 
-    it("allExtrema should return all extrema points complex scenario 4") {
+    // FIXME: pull out tests that test package method
+    it("allExtrema should return all extrema points complex scenario 4") { completeExtremaSetTask =>
       val input = prepareInputDataset(
-        (0, 0, null, null, null),
-        (1, -1, -1.0, "maxima", 0l),
-        (2, 0, 1.0, "minima", 1l),
-        (3, -0.5, -0.5, null, null),
-        (4, -0.5, 0.0, null, null),
-        (5, -0.5, 0.0, null, null),
-        (6, -1, -0.5, "maxima", 2l),
-        (7, 0, 1.0, null, null)
+        (Some(0), Some(0), None, None, None),
+        (Some(1), Some(-1), Some(-1.0), Some("maxima"), Some(0l)),
+        (Some(2), Some(0), Some(1.0), Some("minima"), Some(1l)),
+        (Some(3), Some(-0.5), Some(-0.5), None, None),
+        (Some(4), Some(-0.5), Some(0.0), None, None),
+        (Some(5), Some(-0.5), Some(0.0), None, None),
+        (Some(6), Some(-1), Some(-0.5), Some("maxima"), Some(2l)),
+        (Some(7), Some(0), Some(1.0), None, None)
       )
       val expected = prepareOutputDataset(
-        (1, -1, "maxima", 0l),
-        (2, 0, "minima", 1l),
-        (6, -1, "maxima", 2l)
+        (Some(1), Some(-1), Some("maxima"), Some(0l)),
+        (Some(2), Some(0), Some("minima"), Some(1l)),
+        (Some(6), Some(-1), Some("maxima"), Some(2l))
       )
 
       val result = input.allExtrema("x", "y")
@@ -136,28 +145,31 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
       assertDataFrameEquals(expected, result)
     }
 
-    it("allExtrema should return all extrema points") {
+    // FIXME: pull out tests that test package method
+    it("allExtrema should return all extrema points") { completeExtremaSetTask =>
+      // FIXME: change java long to scala
       val input = prepareInputDataset(
-        (0.5, 0.5, 1d, null, null),
-        (1d, 1d, 1d, "maxima", java.lang.Long.valueOf(0)),
-        (1.5, 1d, 0d, null, null),
-        (2d, 0.5, -1d, null, null),
-        (2.5, 0d, -1d, "minima", java.lang.Long.valueOf(1)),
-        (3d, 0d, 0d, null, null),
-        (3.5, 0d, 0d, null, null),
-        (4d, 0.5, 1d, "maxima", java.lang.Long.valueOf(2)),
-        (5d, -0.5, -1d, null, null),
-        (5.1, -0.5, 0d, null, null),
-        (5.2, -0.5, 0d, null, null),
-        (5.5, -1d, -1.6666666666666676, null, null)
+        (Some(0.5), Some(0.5), Some(1d), None, None),
+        (Some(1), Some(1d), Some(1d), Some("maxima"), Some(0l)),
+        (Some(1.5), Some(1d), Some(0d), None, None),
+        (Some(2), Some(0.5), Some(-1d), None, None),
+        (Some(2.5), Some(0d), Some(-1d), Some("minima"), Some(1l)),
+        (Some(3), Some(0d), Some(0d), None, None),
+        (Some(3.5), Some(0d), Some(0d), None, None),
+        (Some(4), Some(0.5), Some(1d), Some("maxima"), Some(2l)),
+        (Some(5), Some(-0.5), Some(-1d), None, None),
+        (Some(5.1), Some(-0.5), Some(0d), None, None),
+        (Some(5.2), Some(-0.5), Some(0d), None, None),
+        (Some(5.5), Some(-1d), Some(-1.6666666666666676), None, None)
       )
+      // FIXME: change java long to scala
       val expected = prepareOutputDataset(
-        (1d, 1d, "maxima", java.lang.Long.valueOf(0)),
-        (1.5, 1d, "maxima", java.lang.Long.valueOf(0)),
-        (2.5, 0d, "minima", java.lang.Long.valueOf(1)),
-        (3d, 0d, "minima", java.lang.Long.valueOf(1)),
-        (3.5, 0d, "minima", java.lang.Long.valueOf(1)),
-        (4d, 0.5, "maxima", java.lang.Long.valueOf(2))
+        (Some(1), Some(1), Some("maxima"), Some(0l)),
+        (Some(1.5), Some(1), Some("maxima"), Some(0l)),
+        (Some(2.5), Some(0), Some("minima"), Some(1l)),
+        (Some(3), Some(0), Some("minima"), Some(1l)),
+        (Some(3.5), Some(0), Some("minima"), Some(1l)),
+        (Some(4), Some(0.5), Some("maxima"), Some(2l))
       )
 
       val result = input.allExtrema("x", "y")
@@ -165,7 +177,8 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
       assertDataFrameEquals(expected, result)
     }
 
-    it("findCrossovers should return all crossovers") {
+    // FIXME: pull out tests that test package method
+    it("findCrossovers should return all crossovers") { completeExtremaSetTask =>
       val input = Seq(
         (0.5, 0.5, 1d),
         (1d, 1d, 1d),
@@ -188,7 +201,8 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
       assertDataFrameEquals(expected, result)
     }
 
-    it("crossoverIndex should return crossover index") {
+    // FIXME: pull out tests that test package method
+    it("crossoverIndex should return crossover index") { completeExtremaSetTask =>
       val input = Seq(
         (1d, 1d, 1d, "maxima"),
         (2.5, 0d, -1d, "minima"),
@@ -209,7 +223,7 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
   }
 
   describe("find differentiation crossover") {
-    it("run should produce correct extrema types") {
+    it("run should produce correct extrema types") { completeExtremaSetTask =>
       val u = udf((i: Int) => i.toLong)
       val diff = loadCsvFile("src/test/resources/data/cartesian_points_diff.csv")
       val reducedExtremaSet = loadCsvFile("src/test/resources/data/cartesian_points_reduced_extrema_set.csv")
@@ -233,13 +247,13 @@ class CompleteExtremaSetTaskSpec extends SparkSpec {
     }
   }
 
-  private def prepareInputDataset(rows: (Double, Double, java.lang.Double, String, java.lang.Long)*): DataFrame = {
+  private def prepareInputDataset(rows: (Option[Double], Option[Double], Option[java.lang.Double], Option[String], Option[java.lang.Long])*): DataFrame = {
     rows.toDF("x", "y", "diff", "extrema", "extrema_index")
-      .withColumn("null_out_x", when($"diff" === 0, null).otherwise($"x"))
+      .withColumn("null_out_x", when($"diff" =!= 0, $"x"))
       .withColumn("start_of_flat_x", last("null_out_x", true).over(Window.orderBy($"x").rowsBetween(unboundedPreceding, currentRow)))
   }
 
-  private def prepareOutputDataset(rows: (Double, Double, String, java.lang.Long)*): DataFrame = {
+  private def prepareOutputDataset(rows: (Option[Double], Option[Double], Option[String], Option[java.lang.Long])*): DataFrame = {
     rows.toDF("x", "y", "extrema", "extrema_index")
   }
 }

@@ -9,7 +9,7 @@ package object spark {
     def setNullableForAllColumns(nullable: Boolean): DataFrame = {
       val schema = dataFrame.schema
       val newSchema = StructType(schema.map {
-        case StructField(c, t, _, m) => StructField(c, t, nullable = nullable, m)
+        case StructField(c, t, _, m) => StructField(c, t, nullable, m)
       })
 
       dataFrame.sqlContext.createDataFrame(dataFrame.rdd, newSchema)
@@ -19,7 +19,7 @@ package object spark {
       val schema = dataFrame.schema
       val newSchema = StructType(schema.map {
         case StructField(c, t, n, m) => columns.contains(c) match {
-          case true => StructField(c, t, nullable = nullable, m)
+          case true => StructField(c, t, nullable, m)
           case false => StructField(c, t, n, m)
         }
       })

@@ -74,16 +74,15 @@ package object extrema {
           val currentLow = element0.getDouble(2)
           val nextLow = element1.getDouble(2)
 
-          def duplicate: Boolean = {
-            if (currentExtrema == nextExtrema) true else false
+          def duplicate: Boolean = currentExtrema == nextExtrema
+
+
+          def nextMaxValueExtrema: Option[String] = {
+            if (currentLow >= nextLow) Some(currentExtrema) else None
           }
 
-          def nextMaxValueExtrema: String = {
-            if (currentLow >= nextLow) currentExtrema else null
-          }
-
-          def nextMinValueExtrema: String = {
-            if (currentHi <= nextHi) currentExtrema else null
+          def nextMinValueExtrema: Option[String] = {
+            if (currentHi <= nextHi) Some(currentExtrema) else None
           }
 
           val extrema = duplicate match {
@@ -121,12 +120,12 @@ package object extrema {
             if (currentExtrema == previousExtrema) true else false
           }
 
-          def previousMaxValueExtrema: String = {
-            if (previousLow < currentLow) currentExtrema else null
+          def previousMaxValueExtrema: Option[String] = {
+            if (previousLow < currentLow) Some(currentExtrema) else None
           }
 
-          def previousMinValueExtrema: String = {
-            if (previousHi > currentHi) currentExtrema else null
+          def previousMinValueExtrema: Option[String] = {
+            if (previousHi > currentHi) Some(currentExtrema) else None
           }
 
           val extrema = duplicate match {
