@@ -27,11 +27,11 @@ package object extrema {
           val diff0 = element0.getDouble(2)
           val diff1 = element1.getDouble(2)
           val extrema = if (diff0 > 0 && diff1 < 0) {
-            "maxima"
+            Some("maxima")
           } else if (diff0 < 0 && diff1 > 0) {
-            "minima"
+            Some("minima")
           } else {
-            null
+            None
           }
 
           (x0, y0, diff0, extrema)

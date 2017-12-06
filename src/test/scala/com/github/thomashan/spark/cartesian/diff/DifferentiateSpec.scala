@@ -1,16 +1,18 @@
 package com.github.thomashan.spark.cartesian.diff
 
 import com.github.thomashan.spark.{SparkSpec, _}
+import org.scalatest.{Outcome, fixture}
 
-class DifferentiateSpec extends SparkSpec {
-  var differentiateTask: DifferentiateTask = _
+class DifferentiateSpec extends fixture.FunSpec with SparkSpec {
+  type FixtureParam = DifferentiateTask
 
-  before {
-    differentiateTask = new DifferentiateTask()
+  override def withFixture(test: OneArgTest): Outcome = {
+    val differentiateTask = new DifferentiateTask()
+    test(differentiateTask)
   }
 
   describe("perform differentiation") {
-    it("run should produce correct diff values") {
+    it("run should produce correct diff values") { differentiateTask =>
       val input = loadCsvFile("src/test/resources/data/cartesian_points.csv")
       val expected = loadCsvFile("src/test/resources/data/cartesian_points_diff.csv")
         .setNullableForAllColumns(false)

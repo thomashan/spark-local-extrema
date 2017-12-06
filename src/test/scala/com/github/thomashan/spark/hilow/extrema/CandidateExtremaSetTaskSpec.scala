@@ -3,15 +3,9 @@ package com.github.thomashan.spark.hilow.extrema
 import com.github.thomashan.spark.common.LoadCsvFileTask
 import com.github.thomashan.spark.{SparkSpec, _}
 import org.apache.spark.sql.DataFrame
+import org.scalatest.FunSpec
 
-
-class CandidateExtremaSetTaskSpec extends SparkSpec {
-  var reducedExtremaSetTask: CandidateExtremaSetTask = _
-
-  before {
-    reducedExtremaSetTask = new CandidateExtremaSetTask()
-  }
-
+class CandidateExtremaSetTaskSpec extends FunSpec with SparkSpec {
   describe("implementation details") {
     it("findCandidateExtrema should find all candidate extrema") {
       val input = loadCsv("src/test/resources/data/hi_low_diff.csv")

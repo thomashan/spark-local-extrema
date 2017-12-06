@@ -15,9 +15,8 @@ class RemoveUnusedExtremaTask(implicit val spark: SparkSession) extends SparkTas
       .cache
     val extremaSetDeduped = extremaSet
       .removeDuplicate(xAxisName, hiSeriesName, lowSeriesName)
+      // FIXME: find the true extrema
       .cache
-
-    addToCache(extremaSet, extremaSetDeduped)
 
     println("extremaSet.count: " + extremaSet.count)
     println("extremaSetDeduped.count: " + extremaSetDeduped.count)

@@ -41,11 +41,11 @@ package object extrema {
           val lowDiff1 = element1.getDouble(4)
 
           val extrema = if (lowDiff0 > 0 && lowDiff1 < 0) {
-            "maxima"
+            Some("maxima")
           } else if (hiDiff0 < 0 && hiDiff1 > 0) {
-            "minima"
+            Some("minima")
           } else {
-            null
+            None
           }
 
           (x0, hi, low, extrema)
@@ -74,16 +74,15 @@ package object extrema {
           val currentLow = element0.getDouble(2)
           val nextLow = element1.getDouble(2)
 
-          def duplicate: Boolean = {
-            if (currentExtrema == nextExtrema) true else false
+          def duplicate: Boolean = currentExtrema == nextExtrema
+
+
+          def nextMaxValueExtrema: Option[String] = {
+            if (currentLow >= nextLow) Some(currentExtrema) else None
           }
 
-          def nextMaxValueExtrema: String = {
-            if (currentLow >= nextLow) currentExtrema else null
-          }
-
-          def nextMinValueExtrema: String = {
-            if (currentHi <= nextHi) currentExtrema else null
+          def nextMinValueExtrema: Option[String] = {
+            if (currentHi <= nextHi) Some(currentExtrema) else None
           }
 
           val extrema = duplicate match {
@@ -121,12 +120,12 @@ package object extrema {
             if (currentExtrema == previousExtrema) true else false
           }
 
-          def previousMaxValueExtrema: String = {
-            if (previousLow < currentLow) currentExtrema else null
+          def previousMaxValueExtrema: Option[String] = {
+            if (previousLow < currentLow) Some(currentExtrema) else None
           }
 
-          def previousMinValueExtrema: String = {
-            if (previousHi > currentHi) currentExtrema else null
+          def previousMinValueExtrema: Option[String] = {
+            if (previousHi > currentHi) Some(currentExtrema) else None
           }
 
           val extrema = duplicate match {
@@ -198,19 +197,19 @@ package object extrema {
 
           val extrema = if (currentExtrema == "maxima") {
             if (currentLow > element1Hi && element1Hi < element2Low) {
-              currentExtrema
+              Some(currentExtrema)
             } else if (currentLow < element2Low) {
-              null
+              None
             } else {
-              currentExtrema
+              Some(currentExtrema)
             }
           } else {
             if (currentHi < element1Low && element1Low > element2Hi) {
-              currentExtrema
+              Some(currentExtrema)
             } else if (currentHi > element2Hi) {
-              null
+              None
             } else {
-              currentExtrema
+              Some(currentExtrema)
             }
           }
 
@@ -246,19 +245,19 @@ package object extrema {
 
           val extrema = if (currentExtrema == "maxima") {
             if (element0Low > element1Hi && element1Hi < currentLow) {
-              currentExtrema
+              Some(currentExtrema)
             } else if (element0Low < currentLow) {
-              currentExtrema
+              Some(currentExtrema)
             } else {
-              null
+              None
             }
           } else {
             if (element0Hi < element1Low && element1Low > currentHi) {
-              currentExtrema
+              Some(currentExtrema)
             } else if (element0Hi > currentHi) {
-              currentExtrema
+              Some(currentExtrema)
             } else {
-              null
+              None
             }
           }
 

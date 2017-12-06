@@ -18,11 +18,9 @@ class CompleteExtremaSetTask(implicit val spark: SparkSession) extends SparkTask
 
     val startOfFlats = diff
       .join(reducedExtremaSet, Seq(xAxisName, yAxisName, "diff"), "left")
-      .withColumn("null_out_x", when($"diff" === 0, null).otherwise(col(xAxisName)))
-      .withColumn("start_of_flat_x", last("null_out_x", true).over(Window.orderBy(xAxisName).rowsBetween(unboundedPreceding, currentRow)))
+      .withColumn("None_out_x", when($"diff" =!= 0, col(xAxisName)))
+      .withColumn("start_of_flat_x", last("None_out_x", true).over(Window.orderBy(xAxisName).rowsBetween(unboundedPreceding, currentRow)))
       .cache
-
-    addToCache(startOfFlats)
 
     Some(
       startOfFlats
