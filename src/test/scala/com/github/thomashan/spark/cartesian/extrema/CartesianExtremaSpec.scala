@@ -12,7 +12,6 @@ class CartesianExtremaSpec extends FunSpec with SparkSpec {
   import spark.implicits._
 
   describe("implementation details") {
-    // FIXME: pull out tests that test package method
     it("allExtrema should return all extrema points simple scenario 1") {
       val input = prepareInputDataset(
         (Some(0), Some(0), None, None, None),
@@ -30,7 +29,6 @@ class CartesianExtremaSpec extends FunSpec with SparkSpec {
       assertDataFrameEquals(expected, result)
     }
 
-    // FIXME: pull out tests that test package method
     it("allExtrema should return all extrema points simple scenario 2") {
       val input = prepareInputDataset(
         (Some(0), Some(0), None, None, None),
@@ -48,7 +46,6 @@ class CartesianExtremaSpec extends FunSpec with SparkSpec {
       assertDataFrameEquals(expected, result)
     }
 
-    // FIXME: pull out tests that test package method
     it("allExtrema should return all extrema points complex scenario 1") {
       val input = prepareInputDataset(
         (Some(1), Some(0), None, None, None),
@@ -70,7 +67,6 @@ class CartesianExtremaSpec extends FunSpec with SparkSpec {
       assertDataFrameEquals(expected, result)
     }
 
-    // FIXME: pull out tests that test package method
     it("allExtrema should return all extrema points complex scenario 2") {
       val input = prepareInputDataset(
         (Some(1), Some(0), None, None, None),
@@ -92,7 +88,6 @@ class CartesianExtremaSpec extends FunSpec with SparkSpec {
       assertDataFrameEquals(expected, result)
     }
 
-    // FIXME: pull out tests that test package method
     it("allExtrema should return all extrema points complex scenario 3") {
       val input = prepareInputDataset(
         (Some(0), Some(0), None, None, None),
@@ -115,7 +110,6 @@ class CartesianExtremaSpec extends FunSpec with SparkSpec {
       assertDataFrameEquals(expected, result)
     }
 
-    // FIXME: pull out tests that test package method
     it("allExtrema should return all extrema points complex scenario 4") {
       val input = prepareInputDataset(
         (Some(0), Some(0), None, None, None),
@@ -138,9 +132,7 @@ class CartesianExtremaSpec extends FunSpec with SparkSpec {
       assertDataFrameEquals(expected, result)
     }
 
-    // FIXME: pull out tests that test package method
     it("allExtrema should return all extrema points") {
-      // FIXME: change java long to scala
       val input = prepareInputDataset(
         (Some(0.5), Some(0.5), Some(1d), None, None),
         (Some(1), Some(1d), Some(1d), Some("maxima"), Some(0l)),
@@ -155,7 +147,6 @@ class CartesianExtremaSpec extends FunSpec with SparkSpec {
         (Some(5.2), Some(-0.5), Some(0d), None, None),
         (Some(5.5), Some(-1d), Some(-1.6666666666666676), None, None)
       )
-      // FIXME: change java long to scala
       val expected = prepareOutputDataset(
         (Some(1), Some(1), Some("maxima"), Some(0l)),
         (Some(1.5), Some(1), Some("maxima"), Some(0l)),
@@ -170,7 +161,6 @@ class CartesianExtremaSpec extends FunSpec with SparkSpec {
       assertDataFrameEquals(expected, result)
     }
 
-    // FIXME: pull out tests that test package method
     it("findCrossovers should return all crossovers") {
       val input = Seq(
         (0.5, 0.5, 1d),
@@ -194,7 +184,6 @@ class CartesianExtremaSpec extends FunSpec with SparkSpec {
       assertDataFrameEquals(expected, result)
     }
 
-    // FIXME: pull out tests that test package method
     it("crossoverIndex should return crossover index") {
       val input = Seq(
         (1d, 1d, 1d, "maxima"),
