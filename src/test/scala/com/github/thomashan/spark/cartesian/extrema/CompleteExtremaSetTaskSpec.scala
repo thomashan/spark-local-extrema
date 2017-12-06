@@ -8,6 +8,9 @@ import org.apache.spark.sql.functions._
 import org.scalatest.{Outcome, fixture}
 
 class CompleteExtremaSetTaskSpec extends fixture.FunSpec with SparkSpec {
+
+  import spark.implicits._
+
   type FixtureParam = CompleteExtremaSetTask
 
 
@@ -15,8 +18,6 @@ class CompleteExtremaSetTaskSpec extends fixture.FunSpec with SparkSpec {
     val completeExtremaSetTask = new CompleteExtremaSetTask()
     test(completeExtremaSetTask)
   }
-
-  import spark.implicits._
 
   describe("implementation details") {
     // FIXME: pull out tests that test package method

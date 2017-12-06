@@ -13,34 +13,51 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
     val xAxisName = taskParameters("xAxisName").toString
     val yAxisName = taskParameters("yAxisName").toString
 
-    val input = new LoadCsvFileTask()
+    val inputOption = new LoadCsvFileTask()
       .run(Map(
         "inputFile" -> inputFile,
         "header" -> header
-      )).get.cache
+      ))
+    val input = inputOption match {
+      case Some(input) => input.cache
+      case _ => throw new RuntimeException(s"expected input to be present for ${inputFile}")
+    }
 
-    val diff = new DifferentiateTask()
+    val diffOption = new DifferentiateTask()
       .run(Map(
         "input" -> input,
         "xAxisName" -> xAxisName,
         "yAxisName" -> yAxisName
-      )).get.cache
+      ))
 
-    val reducedExtremaSet = new ReducedExtremaSetTask()
+    val diff = diffOption match {
+      case Some(diff) => diff.cache
+      case _ => throw new RuntimeException(s"expected diff to be present for ${inputFile}")
+    }
+
+    val reducedExtremaSetOption = new ReducedExtremaSetTask()
       .run(Map(
         "input" -> diff,
         "xAxisName" -> xAxisName,
         "yAxisName" -> yAxisName
-      )).get
+      ))
+    val reducedExtremaSet = reducedExtremaSetOption match {
+      case Some(reducedExtremaSet) => reducedExtremaSet
+      case _ => throw new RuntimeException(s"expected reducedExtremaSet to be present for ${inputFile}")
+    }
 
     val completeExtremaSetTask = new CompleteExtremaSetTask()
-    val extremaSet = completeExtremaSetTask
+    val extremaSetOption = completeExtremaSetTask
       .run(Map(
         "diff" -> diff,
         "reducedExtremaSet" -> reducedExtremaSet,
         "xAxisName" -> xAxisName,
         "yAxisName" -> yAxisName
-      )).get
+      ))
+    val extremaSet = extremaSetOption match {
+      case Some(extremaSet) => extremaSet
+      case _ => throw new RuntimeException(s"expected extremaSet to be present for ${inputFile}")
+    }
 
     val completeDataset = input
       .join(extremaSet, Seq(xAxisName, yAxisName), "left")
