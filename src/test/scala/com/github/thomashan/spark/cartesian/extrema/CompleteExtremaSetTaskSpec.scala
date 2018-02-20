@@ -18,11 +18,11 @@ class CompleteExtremaSetTaskSpec extends fixture.FunSpec with SparkSpec {
   describe("find differentiation crossover") {
     it("run should produce correct extrema types") { completeExtremaSetTask =>
       val u = udf((i: Int) => i.toLong)
-      val diff = loadCsvFile("src/test/resources/data/cartesian_points_diff.csv")
-      val reducedExtremaSet = loadCsvFile("src/test/resources/data/cartesian_points_reduced_extrema_set.csv")
+      val diff = File.loadCsv("src/test/resources/data/cartesian_points_diff.csv")
+      val reducedExtremaSet = File.loadCsv("src/test/resources/data/cartesian_points_reduced_extrema_set.csv")
         .withColumn("extrema_index", u($"extrema_index"))
 
-      val expected = loadCsvFile("src/test/resources/data/cartesian_points_extrema_set.csv")
+      val expected = File.loadCsv("src/test/resources/data/cartesian_points_extrema_set.csv")
         .withColumn("extrema_index", u($"extrema_index"))
         .setNullableForAllColumns(true)
 
