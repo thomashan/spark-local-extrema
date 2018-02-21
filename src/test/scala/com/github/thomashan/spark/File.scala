@@ -8,6 +8,6 @@ object File {
     new LoadCsvFileTask().run(Map(
       "inputFile" -> csvFile,
       "header" -> true
-    )).getOrElse(spark.emptyDataFrame).orderBy("x")
+    )).getOrElse(throw new RuntimeException("csv file not found")).orderBy("x")
   }
 }
