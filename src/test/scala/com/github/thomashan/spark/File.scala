@@ -8,6 +8,6 @@ object File {
     new LoadCsvFileTask().run(Map(
       "inputFile" -> csvFile,
       "header" -> true
-    )).get.orderBy("x")
+    )).getOrElse(spark.emptyDataFrame).orderBy("x")
   }
 }
