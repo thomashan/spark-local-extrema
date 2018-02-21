@@ -13,8 +13,8 @@ class DifferentiateSpec extends fixture.FunSpec with SparkSpec {
 
   describe("perform differentiation") {
     it("run should produce correct diff values") { differentiateTask =>
-      val input = loadCsvFile("src/test/resources/data/cartesian_points.csv")
-      val expected = loadCsvFile("src/test/resources/data/cartesian_points_diff.csv")
+      val input = File.loadCsv("src/test/resources/data/cartesian_points.csv")
+      val expected = File.loadCsv("src/test/resources/data/cartesian_points_diff.csv")
         .setNullableForAllColumns(false)
         .setNullable(true, "extrema")
 

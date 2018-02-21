@@ -1,6 +1,6 @@
 package com.github.thomashan.spark.common
 
-import com.github.thomashan.spark.SparkSpec
+import com.github.thomashan.spark.{File, SparkSpec}
 import org.scalatest.{Outcome, fixture}
 
 class LoadCsvFileTaskSpec extends fixture.FunSpec with SparkSpec {
@@ -13,15 +13,9 @@ class LoadCsvFileTaskSpec extends fixture.FunSpec with SparkSpec {
 
   describe("run") {
     it("should be able to read test file") { loadCsvFileTask =>
-      val dataframeOption = loadCsvFileTask.run(
-        Map(
-          "inputFile" -> "src/test/resources/data/cartesian_points.csv",
-          "header" -> true
-        )
-      )
+      val dataframe = File.loadCsv("src/test/resources/data/cartesian_points.csv")
 
-      assert(dataframeOption.isDefined)
-      assert(dataframeOption.get.collect().length == 13)
+      assert(dataframe.collect().length == 13)
     }
   }
 }
