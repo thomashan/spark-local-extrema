@@ -21,14 +21,22 @@ class CompleteDatasetJob extends SparkJob {
     val lowSeriesName = args(4)
     val outputFile = args(5)
 
-    new CompleteDatasetTask().run(Map(
+    val completeDataset = new CompleteDatasetTask().run(Map(
       "inputFile" -> inputFile,
       "header" -> header,
       "xAxisName" -> xAxisName,
       "hiSeriesName" -> hiSeriesName,
       "lowSeriesName" -> lowSeriesName,
       "outputFile" -> outputFile
-    ))
+    )).get
+
+    completeDataset
+      .coalesce(1)
+      .orderBy(xAxisName)
+      .write
+      .option("header", true)
+      .mode("overwrite")
+      .csv(outputFile)
   }
 }
 

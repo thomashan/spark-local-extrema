@@ -8,11 +8,11 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
   override def run(taskParameters: Map[String, Any]): Option[DataFrame] = {
     val inputFile = taskParameters("inputFile").toString
-    val outputFile = taskParameters("outputFile").toString
     val header = taskParameters("header").asInstanceOf[Boolean]
     val xAxisName = taskParameters("xAxisName").toString
     val hiSeriesName = taskParameters("hiSeriesName").toString
     val lowSeriesName = taskParameters("lowSeriesName").toString
+    val minimumDistance = taskParameters.getOrElse("minimumDistance", 0.0).asInstanceOf[Double]
 
     def createTaskParameters(input: DataFrame): Map[String, Any] = {
       Map(
@@ -36,31 +36,21 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
     val candidateExtremaSet = new CandidateExtremaSetTask()
       .run(createTaskParameters(diff))
       .get
+      .cache
+
     val candidateExtremaSetDedup = candidateExtremaSet
       .removeDuplicate(xAxisName, hiSeriesName, lowSeriesName)
 
-    val removeUnusedExtremaTask = new RemoveUnusedExtremaTask()
-    val extremaSet = removeUnusedExtremaTask
-      .run(Map(
-        "extrema_deduped" -> candidateExtremaSetDedup,
-        "xAxisName" -> xAxisName,
-        "hiSeriesName" -> hiSeriesName,
-        "lowSeriesName" -> lowSeriesName
-      )).get
-
+    val extremaSet = new RemoveUnusedExtremaTask(minimumDistance).run(Map(
+      "extrema_deduped" -> candidateExtremaSetDedup,
+      "xAxisName" -> xAxisName,
+      "hiSeriesName" -> hiSeriesName,
+      "lowSeriesName" -> lowSeriesName
+    )).get
 
     val completeDataset = input
       .join(extremaSet, Seq(xAxisName, hiSeriesName, lowSeriesName), "left")
-      .select(xAxisName, hiSeriesName, lowSeriesName, "extrema")
 
-    completeDataset
-      .coalesce(1)
-      .orderBy(xAxisName)
-      .write
-      .option("header", true)
-      .mode("overwrite")
-      .csv(outputFile)
-
-    Some(extremaSet)
+    Some(completeDataset)
   }
 }

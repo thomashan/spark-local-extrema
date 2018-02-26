@@ -1,9 +1,10 @@
 package com.github.thomashan.spark.hilow
 
+import com.github.thomashan.spark.hilow.diff.DifferentiateTask
 import org.apache.spark.mllib.rdd.RDDFunctions._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
-import org.apache.spark.sql.functions.{col, lag, max, min, row_number, sum, when}
+import org.apache.spark.sql.functions.{col, first, lag, last, max, min, row_number, sum, when}
 
 package object extrema {
 
@@ -17,16 +18,12 @@ package object extrema {
         .orderBy(xAxisName)
     }
 
-    def findCandidateExtrema(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
-      // FIXME: pull out logic for constructing hi series diff
-      val hiSeriesDiff = "diff_" + hiSeriesName
-      val lowSeriesDiff = "diff_" + lowSeriesName
+    def getCandidateExtremaFromDiff(extrema: String, xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
+      val seriesName = if (extrema == "maxima") lowSeriesName else hiSeriesName
 
       dataFrame
-        // FIXME: get rid of unused columns
-        .select(xAxisName, hiSeriesName, lowSeriesName, hiSeriesDiff, lowSeriesDiff)
-        .where(col(hiSeriesDiff) =!= 0 || col(lowSeriesDiff) =!= 0)
         .orderBy(xAxisName)
+        .select(xAxisName, hiSeriesName, lowSeriesName, s"diff_${seriesName}")
         .rdd
         .sliding(2)
         .map { array =>
@@ -35,23 +32,84 @@ package object extrema {
           val x0 = element0.getDouble(0)
           val hi = element0.getDouble(1)
           val low = element0.getDouble(2)
-          val hiDiff0 = element0.getDouble(3)
-          val hiDiff1 = element1.getDouble(3)
-          val lowDiff0 = element0.getDouble(4)
-          val lowDiff1 = element1.getDouble(4)
-
-          val extrema = if (lowDiff0 > 0 && lowDiff1 < 0) {
-            Some("maxima")
-          } else if (hiDiff0 < 0 && hiDiff1 > 0) {
-            Some("minima")
-          } else {
-            None
+          val seriesDiff0 = element0.getDouble(3)
+          val seriesDiff1 = element1.getDouble(3)
+          val extremaValue = extrema match {
+            case "maxima" if seriesDiff0 > 0 && seriesDiff1 < 0 ⇒ Some("maxima")
+            case "minima" if seriesDiff0 < 0 && seriesDiff1 > 0 ⇒ Some("minima")
+            case _ ⇒ None
           }
 
-          (x0, hi, low, extrema)
+          (x0, hi, low, extremaValue)
         }
         .toDF(xAxisName, hiSeriesName, lowSeriesName, "extrema")
-        .where($"extrema".isNotNull)
+        .where(col("extrema").isNotNull)
+    }
+
+    def findCandidateExtrema(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
+      val hiSeriesDiff = "diff_" + hiSeriesName
+      val lowSeriesDiff = "diff_" + lowSeriesName
+
+      val diff = dataFrame
+        .select(xAxisName, hiSeriesName, lowSeriesName, hiSeriesDiff, lowSeriesDiff)
+        .cache
+
+      val initialMinimaCandidates = diff
+        .where(col(hiSeriesDiff) =!= 0)
+        .getCandidateExtremaFromDiff("minima", xAxisName, hiSeriesName, lowSeriesName)
+        .cache
+
+      val initialMaximaCandidates = diff
+        .where(col(lowSeriesDiff) =!= 0)
+        .getCandidateExtremaFromDiff("maxima", xAxisName, hiSeriesName, lowSeriesName)
+        .cache
+
+      val initialExtremaCandidates1 = initialMinimaCandidates
+        .union(initialMaximaCandidates)
+        .orderBy(xAxisName, "extrema")
+        .cache
+
+      implicit val spark = dataFrame.sparkSession
+
+      val minimaCandidate: DataFrame = new DifferentiateTask().run(Map(
+        "input" → initialMinimaCandidates,
+        "xAxisName" -> xAxisName,
+        "hiSeriesName" -> hiSeriesName,
+        "lowSeriesName" -> lowSeriesName
+      )).getOrElse(throw new RuntimeException)
+        .where(col(hiSeriesDiff) =!= 0)
+        .getCandidateExtremaFromDiff("minima", xAxisName, hiSeriesName, lowSeriesName)
+
+      val maximaCandidate: DataFrame = new DifferentiateTask().run(Map(
+        "input" → initialMaximaCandidates,
+        "xAxisName" -> xAxisName,
+        "hiSeriesName" -> hiSeriesName,
+        "lowSeriesName" -> lowSeriesName
+      )).getOrElse(throw new RuntimeException)
+        .where(col(lowSeriesDiff) =!= 0)
+        .getCandidateExtremaFromDiff("maxima", xAxisName, hiSeriesName, lowSeriesName)
+
+      val extremaCandidates1 = minimaCandidate.union(maximaCandidate)
+
+      val extremaCandidates2 = initialExtremaCandidates1
+        .groupBy(xAxisName, hiSeriesName, lowSeriesName)
+        .agg(first("extrema").as("extrema"))
+        .removeDuplicate(xAxisName, hiSeriesName, lowSeriesName)
+        .removeUnusedExtrema(xAxisName, hiSeriesName, lowSeriesName, 0)
+
+      val extremaCandidates3 = initialExtremaCandidates1
+        .groupBy(xAxisName, hiSeriesName, lowSeriesName)
+        .agg(last("extrema").as("extrema"))
+        .removeDuplicate(xAxisName, hiSeriesName, lowSeriesName)
+        .removeUnusedExtrema(xAxisName, hiSeriesName, lowSeriesName, 0)
+
+      val result = extremaCandidates1
+        .union(extremaCandidates2)
+        .union(extremaCandidates3)
+        .orderBy(xAxisName)
+        .distinct
+
+      result
     }
 
     def firstExtrema(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
@@ -75,7 +133,6 @@ package object extrema {
           val nextLow = element1.getDouble(2)
 
           def duplicate: Boolean = currentExtrema == nextExtrema
-
 
           def nextMaxValueExtrema: Option[String] = {
             if (currentLow >= nextLow) Some(currentExtrema) else None
@@ -157,9 +214,9 @@ package object extrema {
 
     }
 
-    def removeUnusedExtrema(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
-      val pass1 = dataFrame.removeUnusedExtremaPass1(xAxisName, hiSeriesName, lowSeriesName)
-      val pass2 = dataFrame.removeUnusedExtremaPass2(xAxisName, hiSeriesName, lowSeriesName)
+    def removeUnusedExtrema(xAxisName: String, hiSeriesName: String, lowSeriesName: String, minimumDistance: Double): DataFrame = {
+      val pass1 = dataFrame.removeUnusedExtremaPass1(xAxisName, hiSeriesName, lowSeriesName, minimumDistance)
+      val pass2 = dataFrame.removeUnusedExtremaPass2(xAxisName, hiSeriesName, lowSeriesName, minimumDistance)
 
       dataFrame
         .join(pass1, Seq(xAxisName, hiSeriesName, lowSeriesName), "left")
@@ -172,7 +229,7 @@ package object extrema {
         .orderBy(xAxisName)
     }
 
-    def removeUnusedExtremaPass1(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
+    def removeUnusedExtremaPass1(xAxisName: String, hiSeriesName: String, lowSeriesName: String, minimumDistance: Double): DataFrame = {
       // FIXME: cache dataFrame!
 
       dataFrame
@@ -196,7 +253,7 @@ package object extrema {
           val currentExtrema = element0.getString(3)
 
           val extrema = if (currentExtrema == "maxima") {
-            if (currentLow > element1Hi && element1Hi < element2Low) {
+            if (currentLow > (element1Hi + minimumDistance) && element1Hi < element2Low) {
               Some(currentExtrema)
             } else if (currentLow < element2Low) {
               None
@@ -204,7 +261,7 @@ package object extrema {
               Some(currentExtrema)
             }
           } else {
-            if (currentHi < element1Low && element1Low > element2Hi) {
+            if (currentHi < (element1Low - minimumDistance) && element1Low > element2Hi) {
               Some(currentExtrema)
             } else if (currentHi > element2Hi) {
               None
@@ -220,7 +277,7 @@ package object extrema {
         .orderBy(xAxisName)
     }
 
-    def removeUnusedExtremaPass2(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
+    def removeUnusedExtremaPass2(xAxisName: String, hiSeriesName: String, lowSeriesName: String, minimumDistance: Double): DataFrame = {
       // FIXME: cache dataFrame!
 
       dataFrame
@@ -244,7 +301,7 @@ package object extrema {
           val currentExtrema = element2.getString(3)
 
           val extrema = if (currentExtrema == "maxima") {
-            if (element0Low > element1Hi && element1Hi < currentLow) {
+            if (element0Low > element1Hi && (element1Hi + minimumDistance) < currentLow) {
               Some(currentExtrema)
             } else if (element0Low < currentLow) {
               Some(currentExtrema)
@@ -252,7 +309,7 @@ package object extrema {
               None
             }
           } else {
-            if (element0Hi < element1Low && element1Low > currentHi) {
+            if (element0Hi < element1Low && (element1Low - minimumDistance) > currentHi) {
               Some(currentExtrema)
             } else if (element0Hi > currentHi) {
               Some(currentExtrema)
@@ -266,6 +323,10 @@ package object extrema {
         .toDF(xAxisName, hiSeriesName, lowSeriesName, "extrema_pass2")
         .where($"extrema_pass2".isNotNull)
         .orderBy(xAxisName)
+    }
+
+    def trueExtremaInPartition(): DataFrame = {
+      ???
     }
   }
 
