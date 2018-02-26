@@ -324,10 +324,6 @@ package object extrema {
         .where($"extrema_pass2".isNotNull)
         .orderBy(xAxisName)
     }
-
-    def trueExtremaInPartition(): DataFrame = {
-      ???
-    }
   }
 
 }
