@@ -3,7 +3,7 @@ package com.github.thomashan.spark.hilow.extrema
 import com.github.thomashan.spark.SparkTask
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
-class RemoveUnusedExtremaTask(implicit val spark: SparkSession) extends SparkTask {
+class RemoveUnusedExtremaTask(minimumDistance: Double)(implicit val spark: SparkSession) extends SparkTask {
   override def run(taskParameters: Map[String, Any]): Option[DataFrame] = {
     val extremaDeduped = taskParameters("extrema_deduped").asInstanceOf[DataFrame].cache
     val xAxisName = taskParameters("xAxisName").toString
@@ -11,11 +11,10 @@ class RemoveUnusedExtremaTask(implicit val spark: SparkSession) extends SparkTas
     val lowSeriesName = taskParameters("lowSeriesName").toString
 
     val extremaSet = extremaDeduped
-      .removeUnusedExtrema(xAxisName, hiSeriesName, lowSeriesName)
+      .removeUnusedExtrema(xAxisName, hiSeriesName, lowSeriesName, minimumDistance)
       .cache
     val extremaSetDeduped = extremaSet
       .removeDuplicate(xAxisName, hiSeriesName, lowSeriesName)
-      // FIXME: find the true extrema
       .cache
 
     println("extremaSet.count: " + extremaSet.count)
