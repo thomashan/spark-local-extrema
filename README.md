@@ -1,5 +1,5 @@
 # spark-local-extrema
-Algorithm to that find local extrema using spark.
+Algorithm to find local extrema using spark.
 
 [![Build Status](https://travis-ci.org/thomashan/spark-local-extrema.svg?branch=master)](https://travis-ci.org/thomashan/spark-local-extrema)
 [![codecov](https://codecov.io/gh/thomashan/spark-local-extrema/branch/master/graph/badge.svg)](https://codecov.io/gh/thomashan/spark-local-extrema)
