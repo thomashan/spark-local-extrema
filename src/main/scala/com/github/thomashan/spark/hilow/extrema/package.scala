@@ -296,21 +296,16 @@ package object extrema {
 
           val currentExtrema = element2.getString(3)
 
-          val extrema = if (currentExtrema == "maxima") {
-            if (element0Low > element1Hi && (element1Hi + minimumDistance) < currentLow) {
-              Some(currentExtrema)
-            } else if (element0Low < currentLow) {
-              Some(currentExtrema)
-            } else {
-              None
+          val extrema = currentExtrema match {
+            case "maxima" ⇒ element0Low match {
+              case element0Low if element0Low > element1Hi && (element1Hi + minimumDistance) < currentLow ⇒ Some(currentExtrema)
+              case element0Low if element0Low < currentLow ⇒  Some(currentExtrema)
+              case _ ⇒ None
             }
-          } else {
-            if (element0Hi < element1Low && (element1Low - minimumDistance) > currentHi) {
-              Some(currentExtrema)
-            } else if (element0Hi > currentHi) {
-              Some(currentExtrema)
-            } else {
-              None
+            case "minima" ⇒ element0Hi match {
+              case element0Hi if element0Hi < element1Low && (element1Low - minimumDistance) > currentHi ⇒ Some(currentExtrema)
+              case element0Hi if element0Hi > currentHi ⇒ Some(currentExtrema)
+              case _ ⇒ None
             }
           }
 

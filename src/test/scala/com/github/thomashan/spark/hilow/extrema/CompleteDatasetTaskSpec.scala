@@ -15,7 +15,7 @@ class CompleteDatasetTaskSpec extends FunSpec with SparkSpec {
         "hiSeriesName" -> "hi",
         "lowSeriesName" -> "low"
       ))
-        .get
+        .getOrElse(throw new RuntimeException("can't get completeDataset"))
         .withColumn("increment_partition", when(col("extrema").isNotNull, 1).otherwise(0))
         .withColumn("partition", sum(col("increment_partition")).over(Window.orderBy("x")))
         .withColumn("partition_hi", max("low").over(Window.partitionBy("partition")))
