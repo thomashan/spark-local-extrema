@@ -271,8 +271,6 @@ package object extrema {
     }
 
     def removeUnusedExtremaPass1(xAxisName: String, hiSeriesName: String, lowSeriesName: String, minimumDistance: Double): DataFrame = {
-      // FIXME: cache dataFrame!
-
       dataFrame
         .select(xAxisName, hiSeriesName, lowSeriesName, "extrema")
         .orderBy(xAxisName)
@@ -315,8 +313,6 @@ package object extrema {
     }
 
     def removeUnusedExtremaPass2(xAxisName: String, hiSeriesName: String, lowSeriesName: String, minimumDistance: Double): DataFrame = {
-      // FIXME: cache dataFrame!
-
       dataFrame
         .select(xAxisName, hiSeriesName, lowSeriesName, "extrema")
         .orderBy(xAxisName)
