@@ -12,11 +12,11 @@ class RemoveUnusedExtremaTaskSpec extends FunSpec with SparkSpec {
         .removeDuplicate("x", "hi", "low")
 
       val result = new RemoveUnusedExtremaTask(0).run(Map(
-        "extrema_deduped" → input,
-        "xAxisName" → "x",
-        "hiSeriesName" → "hi",
-        "lowSeriesName" → "low"
-      )).get
+        "extrema_deduped" -> input,
+        "xAxisName" -> "x",
+        "hiSeriesName" -> "hi",
+        "lowSeriesName" -> "low"
+      )).getOrElse(throw new RuntimeException("RemoveUnusedExtremaTask result not found"))
         .withColumn("previous_extrema", lag("extrema", 1).over(Window.orderBy("x")))
         .withColumn("previous_hi", lag("hi", 1).over(Window.orderBy("x")))
         .withColumn("previous_low", lag("low", 1).over(Window.orderBy("x")))

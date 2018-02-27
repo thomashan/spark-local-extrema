@@ -4,7 +4,7 @@ import com.github.thomashan.spark.hilow.diff.DifferentiateTask
 import org.apache.spark.mllib.rdd.RDDFunctions._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
-import org.apache.spark.sql.functions.{col, first, lag, last, max, min, row_number, sum, when}
+import org.apache.spark.sql.functions._
 
 package object extrema {
 
@@ -35,9 +35,9 @@ package object extrema {
           val seriesDiff0 = element0.getDouble(3)
           val seriesDiff1 = element1.getDouble(3)
           val extremaValue = extrema match {
-            case "maxima" if seriesDiff0 > 0 && seriesDiff1 < 0 ⇒ Some("maxima")
-            case "minima" if seriesDiff0 < 0 && seriesDiff1 > 0 ⇒ Some("minima")
-            case _ ⇒ None
+            case "maxima" if seriesDiff0 > 0 && seriesDiff1 < 0 => Some("maxima")
+            case "minima" if seriesDiff0 < 0 && seriesDiff1 > 0 => Some("minima")
+            case _ => None
           }
 
           (x0, hi, low, extremaValue)
@@ -72,7 +72,7 @@ package object extrema {
       implicit val spark = dataFrame.sparkSession
 
       val minimaCandidate: DataFrame = new DifferentiateTask().run(Map(
-        "input" → initialMinimaCandidates,
+        "input" -> initialMinimaCandidates,
         "xAxisName" -> xAxisName,
         "hiSeriesName" -> hiSeriesName,
         "lowSeriesName" -> lowSeriesName
@@ -81,7 +81,7 @@ package object extrema {
         .getCandidateExtremaFromDiff("minima", xAxisName, hiSeriesName, lowSeriesName)
 
       val maximaCandidate: DataFrame = new DifferentiateTask().run(Map(
-        "input" → initialMaximaCandidates,
+        "input" -> initialMaximaCandidates,
         "xAxisName" -> xAxisName,
         "hiSeriesName" -> hiSeriesName,
         "lowSeriesName" -> lowSeriesName
@@ -252,22 +252,18 @@ package object extrema {
 
           val currentExtrema = element0.getString(3)
 
-          val extrema = if (currentExtrema == "maxima") {
-            if (currentLow > (element1Hi + minimumDistance) && element1Hi < element2Low) {
-              Some(currentExtrema)
-            } else if (currentLow < element2Low) {
-              None
-            } else {
-              Some(currentExtrema)
+          val extrema = currentExtrema match {
+            case "maxima" => currentLow match {
+              case currentLow if currentLow > (element1Hi + minimumDistance) && element1Hi < element2Low => Some(currentExtrema)
+              case currentLow if currentLow < element2Low => None
+              case _ => Some(currentExtrema)
             }
-          } else {
-            if (currentHi < (element1Low - minimumDistance) && element1Low > element2Hi) {
-              Some(currentExtrema)
-            } else if (currentHi > element2Hi) {
-              None
-            } else {
-              Some(currentExtrema)
+            case "minima" => currentHi match {
+              case currentHi if currentHi < (element1Low - minimumDistance) && element1Low > element2Hi => Some(currentExtrema)
+              case currentHi if currentHi > element2Hi => None
+              case _ => Some(currentExtrema)
             }
+            case _ => None
           }
 
           (x, currentHi, currentLow, extrema)

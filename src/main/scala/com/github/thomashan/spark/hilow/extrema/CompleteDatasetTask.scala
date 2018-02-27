@@ -46,7 +46,7 @@ class CompleteDatasetTask(implicit val spark: SparkSession) extends SparkTask {
       "xAxisName" -> xAxisName,
       "hiSeriesName" -> hiSeriesName,
       "lowSeriesName" -> lowSeriesName
-    )).get
+    )).getOrElse(throw new RuntimeException("extremaSet not found"))
 
     val completeDataset = input
       .join(extremaSet, Seq(xAxisName, hiSeriesName, lowSeriesName), "left")

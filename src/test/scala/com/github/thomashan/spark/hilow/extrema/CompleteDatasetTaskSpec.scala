@@ -9,11 +9,11 @@ class CompleteDatasetTaskSpec extends FunSpec with SparkSpec {
   describe("run") {
     it("should return correct extrema") {
       val completeDataset = new CompleteDatasetTask().run(Map(
-        "inputFile" → "src/test/resources/data/hi_low_large.csv.gz",
-        "header" → true,
-        "xAxisName" → "x",
-        "hiSeriesName" → "hi",
-        "lowSeriesName" → "low"
+        "inputFile" -> "src/test/resources/data/hi_low_large.csv.gz",
+        "header" -> true,
+        "xAxisName" -> "x",
+        "hiSeriesName" -> "hi",
+        "lowSeriesName" -> "low"
       ))
         .get
         .withColumn("increment_partition", when(col("extrema").isNotNull, 1).otherwise(0))

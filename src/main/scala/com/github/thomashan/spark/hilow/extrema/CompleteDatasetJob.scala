@@ -28,7 +28,7 @@ class CompleteDatasetJob extends SparkJob {
       "hiSeriesName" -> hiSeriesName,
       "lowSeriesName" -> lowSeriesName,
       "outputFile" -> outputFile
-    )).get
+    )).getOrElse(throw new RuntimeException("completeDataset not found"))
 
     completeDataset
       .coalesce(1)
