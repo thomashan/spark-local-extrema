@@ -46,28 +46,40 @@ package object extrema {
         .where(col("extrema").isNotNull)
     }
 
-    def findCandidateExtrema(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
+    def initialMinimaCandidates(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
       val hiSeriesDiff = "diff_" + hiSeriesName
-      val lowSeriesDiff = "diff_" + lowSeriesName
 
-      val diff = dataFrame
-        .select(xAxisName, hiSeriesName, lowSeriesName, hiSeriesDiff, lowSeriesDiff)
-        .cache
-
-      val initialMinimaCandidates = diff
+      dataFrame
         .where(col(hiSeriesDiff) =!= 0)
         .getCandidateExtremaFromDiff("minima", xAxisName, hiSeriesName, lowSeriesName)
         .cache
+    }
 
-      val initialMaximaCandidates = diff
+    def initialMaximaCandidates(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
+      val lowSeriesDiff = "diff_" + lowSeriesName
+
+      dataFrame
         .where(col(lowSeriesDiff) =!= 0)
         .getCandidateExtremaFromDiff("maxima", xAxisName, hiSeriesName, lowSeriesName)
         .cache
+    }
 
-      val initialExtremaCandidates1 = initialMinimaCandidates
+    def initialExtremaCandidates(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
+      val initialMinimaCandidates = dataFrame
+        .initialMinimaCandidates(xAxisName, hiSeriesName, lowSeriesName)
+
+      val initialMaximaCandidates = dataFrame
+        .initialMaximaCandidates(xAxisName, hiSeriesName, lowSeriesName)
+
+      initialMinimaCandidates
         .union(initialMaximaCandidates)
         .orderBy(xAxisName, "extrema")
         .cache
+    }
+
+    def extremaCandidatesBasedOn2ndDiff(initialMinimaCandidates: DataFrame, initialMaximaCandidates: DataFrame, xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
+      val hiSeriesDiff = "diff_" + hiSeriesName
+      val lowSeriesDiff = "diff_" + lowSeriesName
 
       implicit val spark = dataFrame.sparkSession
 
@@ -89,23 +101,52 @@ package object extrema {
         .where(col(lowSeriesDiff) =!= 0)
         .getCandidateExtremaFromDiff("maxima", xAxisName, hiSeriesName, lowSeriesName)
 
-      val extremaCandidates1 = minimaCandidate.union(maximaCandidate)
+      minimaCandidate.union(maximaCandidate)
+    }
 
-      val extremaCandidates2 = initialExtremaCandidates1
+    def extremaCandidatesBasedOnRollingWindow(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
+      val extremaCandidates1 = dataFrame
         .groupBy(xAxisName, hiSeriesName, lowSeriesName)
         .agg(first("extrema").as("extrema"))
         .removeDuplicate(xAxisName, hiSeriesName, lowSeriesName)
         .removeUnusedExtrema(xAxisName, hiSeriesName, lowSeriesName, 0)
 
-      val extremaCandidates3 = initialExtremaCandidates1
+      val extremaCandidates2 = dataFrame
         .groupBy(xAxisName, hiSeriesName, lowSeriesName)
         .agg(last("extrema").as("extrema"))
         .removeDuplicate(xAxisName, hiSeriesName, lowSeriesName)
         .removeUnusedExtrema(xAxisName, hiSeriesName, lowSeriesName, 0)
 
+      extremaCandidates1
+        .union(extremaCandidates2)
+        .orderBy(xAxisName)
+        .distinct
+    }
+
+    def findCandidateExtrema(xAxisName: String, hiSeriesName: String, lowSeriesName: String): DataFrame = {
+      val hiSeriesDiff = "diff_" + hiSeriesName
+      val lowSeriesDiff = "diff_" + lowSeriesName
+
+      val diff = dataFrame
+        .select(xAxisName, hiSeriesName, lowSeriesName, hiSeriesDiff, lowSeriesDiff)
+        .cache
+
+      val initialMinimaCandidates = diff
+        .initialMinimaCandidates(xAxisName, hiSeriesName, lowSeriesName)
+      val initialMaximaCandidates = diff
+        .initialMaximaCandidates(xAxisName, hiSeriesName, lowSeriesName)
+      val initialExtremaCandidates1 = initialMinimaCandidates
+        .union(initialMaximaCandidates)
+        .orderBy(xAxisName, "extrema")
+        .cache
+
+      val extremaCandidates1 = diff
+        .extremaCandidatesBasedOn2ndDiff(initialMinimaCandidates, initialMaximaCandidates, xAxisName, hiSeriesName, lowSeriesName)
+      val extremaCandidates2 = initialExtremaCandidates1
+        .extremaCandidatesBasedOnRollingWindow(xAxisName, hiSeriesName, lowSeriesName)
+
       val result = extremaCandidates1
         .union(extremaCandidates2)
-        .union(extremaCandidates3)
         .orderBy(xAxisName)
         .distinct
 
